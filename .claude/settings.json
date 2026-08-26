@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(codex exec:*)",
+      "Bash(codex --version)",
+      "Bash(git -C * status:*)",
+      "Bash(git -C * diff:*)",
+      "Bash(git -C * log:*)",
+      "Bash(git -C * show:*)",
+      "Bash(git -C * branch:*)"
+    ]
+  }
+}
