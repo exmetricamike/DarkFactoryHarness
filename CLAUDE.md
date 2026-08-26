@@ -33,7 +33,7 @@ The same applies after implementation: Codex reviews its own work when you send 
 
 | Command | Phase | Gate to pass before next |
 |---|---|---|
-| `/df-intake [path-to-spec]` | 1. Spec interrogation + stack discovery | `project/SPEC.md` has zero OPEN items |
+| `/df-intake [repos]` | 1. Read all of `project/intake/`, interrogate, discover the stack | `project/SPEC.md` has zero OPEN items |
 | `/df-plan` | 2. Work-package decomposition | `project/BACKLOG.md` exists, WPs ordered + dependency-clean |
 | `/df-spec WP-XXX` | 3. Write the WP spec, have Codex review it, resolve what it flags | Codex `VERDICT: READY` → WP state `SPECCED` |
 | `/df-build WP-XXX` | 4. Codex implements, you verify, you commit | WP state `DONE` |
@@ -75,6 +75,8 @@ Always true, no trigger needed:
 ## File map
 
 ```
+project/intake/             USER-SUPPLIED source material: spec docs, mockups, data samples
+                            [read-only — never edit; /df-intake consumes all of it]
 project/PROJECT.md          repos, stacks, run/test/lint commands, conventions   [written by /df-intake]
 project/SPEC.md             refined, actionable product spec + open-questions ledger
 project/BACKLOG.md          WP table = progress source of truth

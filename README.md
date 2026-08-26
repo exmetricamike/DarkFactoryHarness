@@ -1,20 +1,21 @@
 # Dark Factory Harness
 
 Claude coordinates, specs, reviews and tests. **Codex reviews every spec and writes the code.**
-You supply the spec and the two repos in the evening. It builds overnight. You read the report in the morning.
+Drop your spec, mockups and supporting documents in `project/intake/`, point it at your two repos, and go to bed. Read the report in the morning.
 
 ## Setup
 
 1. Have `codex` on PATH and logged in (`codex --version`).
-2. Have your frontend and backend repos cloned locally, working trees clean.
-3. For UI testing, have the Claude in Chrome extension connected and permitted for `localhost`.
-4. Open Claude Code in this folder, and leave the window open overnight.
+2. Put your spec document, mockups, screenshots and any supporting material into `project/intake/` — see the README in there. Everything in that folder gets read.
+3. Have your frontend and backend repos cloned locally, working trees clean.
+4. For UI testing, have the Claude in Chrome extension connected and permitted for `localhost`.
+5. Open Claude Code in this folder, and leave the window open overnight.
 
 ## Run it
 
 | Step | Command | What you do |
 |---|---|---|
-| 1 | `/df-intake <spec-file> <frontend-repo> <backend-repo>` | Answer Claude's questions until the spec is actionable. Repeat as long as it keeps asking — this is the step that decides quality. |
+| 1 | `/df-intake <frontend-repo> <backend-repo>` | Claude reads everything in `project/intake/` first, then asks only what's still missing. Answer until it stops. Repeat as long as it keeps asking — this is the step that decides quality. |
 | 2 | `/df-plan` | Review the work-package list; approve, or ask to split/reorder. |
 | 3 | `/df-run` | Go to bed. See below. |
 | — | `/df-status` | Where things stand, anytime. |
@@ -46,7 +47,8 @@ When the wake-up fires, Claude re-reads the checkpoint, reconciles it against th
 
 ## Where to look
 
-- `project/SPEC.md` — the refined spec, with the decision log
+- `project/intake/` — your source material, exactly as you left it
+- `project/SPEC.md` — the refined spec Claude built from it, with the decision log
 - `project/BACKLOG.md` — progress, one row per work package
 - `project/wps/WP-XXX.md` — what Codex was told to build
 - `project/MORNING.md` — **read this first in the morning**

@@ -1,19 +1,33 @@
 ---
-description: Phase 1 - ingest the initial spec, analyze the provided repos to infer the stack, interrogate the user until the spec is actionable
-argument-hint: [path to spec document] [frontend repo path] [backend repo path]
+description: Phase 1 - ingest everything in project/intake, analyze the provided repos to infer the stack, interrogate the user until the spec is actionable
+argument-hint: [frontend repo path] [backend repo path]
 ---
 
 # /df-intake — make the spec actionable
 
-Input: `$ARGUMENTS` (may be empty — then ask for the spec path and the two repo paths).
+Source material: **everything in `project/intake/`**. Repos: from `$ARGUMENTS`, or ask if not given.
 
 Goal: produce `project/PROJECT.md` (stack truth) and `project/SPEC.md` (product truth, zero OPEN items).
 Do not decompose into work packages here. That is `/df-plan`.
 
-## Step 1 — ingest
+## Step 1 — ingest the intake folder, all of it
 
-1. Copy/normalize the user's spec into `project/SPEC.md` verbatim first (keep their words; you will annotate, not rewrite away).
-2. Read it fully. List what it does and does not answer.
+`ls -R project/intake/`. Read **every** file before you form an opinion — the requirement that matters is usually in the one you were about to skip.
+
+- **Text/Markdown** → read fully.
+- **PDF** → `Read` with a page range; long documents in 20-page chunks.
+- **Word/Office** → convert to text (`pandoc`, or `python-docx`) rather than guessing from the filename. If nothing can open it, say so explicitly instead of silently ignoring it.
+- **Images** (mockups, screenshots, sketches, logos) → `Read` them; they carry layout, flow, and visual intent no prose in the folder will repeat. Note screen names, fields, and states you can see.
+- **Data samples** (CSV, JSON payloads, schema dumps) → these are the real field names and types. They outrank prose describing the same entities.
+- **Subfolder named `old/`** → context, not requirements. Read for background, never treat as a demand.
+- **`NOTES.md` in the folder** → the user's precedence rules. It wins over anything it contradicts.
+
+Then reconcile:
+
+1. **Conflicts between documents** — if the user did not say which wins, prefer the most recent, and log the conflict as a decision. Never silently merge two contradictory requirements into a plausible-sounding third one.
+2. **Never edit anything in `project/intake/`.** It is the source of record.
+3. Write `project/SPEC.md` as a consolidated restatement — the user's words and intent preserved, deduplicated, with `[src: <filename>]` markers on anything non-obvious so a claim can be traced back.
+4. List what the material does and does not answer. That list drives Step 3.
 
 ## Step 2 — infer the stack from the repos (do not ask what the code can tell you)
 
@@ -65,7 +79,7 @@ Score the spec against this checklist. Every unanswered item becomes an OPEN ite
 - **Users & roles**: who are the actors, what may each do, auth model, tenancy (single/multi)
 - **Core entities**: the data model nouns, their relations, lifecycle/state transitions, ownership
 - **Flows**: the top user journeys end-to-end, including the unhappy paths
-- **Screens/surfaces**: which UI screens exist, what each shows and does
+- **Screens/surfaces**: which UI screens exist, what each shows and does — check the mockups in the intake folder before asking about layout the user already drew
 - **API surface**: which operations the frontend needs; sync vs async; pagination/filtering
 - **Rules & invariants**: validation, permissions, limits, money/units/timezones
 - **External integrations**: providers, auth, sandbox/live, failure behavior
@@ -80,7 +94,7 @@ Score the spec against this checklist. Every unanswered item becomes an OPEN ite
 Ask with `AskUserQuestion`, **max 4 questions per call**, highest-leverage first (things that change the data model or the architecture come before things that change a screen).
 Rules:
 - Always offer a concrete recommended default as the first option, marked `(Recommended)`, inferred from the repos and the domain. Cheap for the user to say "yes".
-- Never ask what the repos already answered.
+- Never ask what the repos already answered. **Never ask what a document or mockup in `project/intake/` already answered** — asking about something they handed you reads as not having read it.
 - Never ask two questions that collapse into one decision.
 - Keep looping until every checklist item is Resolved or the user marks it Deferred.
 - Batch related questions; don't drip one at a time.
