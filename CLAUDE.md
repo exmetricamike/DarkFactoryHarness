@@ -29,6 +29,27 @@ Codex is a senior engineer with something you do not have: it reads the actual r
 
 The same applies after implementation: Codex reviews its own work when you send back failures, and it reviews the code you wrote yourself.
 
+## The harness learns — `LESSONS.md`
+
+This harness runs on project after project. It should be better at the tenth than at the first, and the
+only thing that carries across is `LESSONS.md` at the repo root — `project/` gets wiped or replaced, that
+file does not.
+
+- **Read it at the start of every phase command**, before you decide anything. It is capped at 30 one-line
+  lessons so this stays cheap.
+- **Step 0 of any decision is "did a previous night already answer this?"** A lesson that applies outranks
+  your own reasoning from scratch — that is the whole point of having it.
+- **Capture a candidate the moment something costs you.** A spec that took ≥3 review rounds, a WP reverted
+  or blocked, ≥2 fix rounds on the same defect, a decision you had to reverse, an hour lost to environment
+  or tooling. One line appended to the `Candidates` section of `LESSONS.md`, then keep working — do not
+  stop to philosophise, and do not promote it to a lesson mid-run.
+- **`/df-retro` in the morning does the distilling**, with the user's grades on `project/DECISIONS.md` in
+  hand. Their verdict on a decision beats your own account of it.
+- **General rules only, and never project identity.** The lesson must be actionable on a project this
+  harness has never seen; the context is the project's *shape* ("a fintech dashboard SPA on React +
+  FastAPI, WP touching auth"), never client names, product names, repo paths or proprietary domain terms.
+  Anything true only of this product belongs in `project/`, not here.
+
 ## Command map
 
 | Command | Phase | Gate to pass before next |
@@ -39,6 +60,7 @@ The same applies after implementation: Codex reviews its own work when you send 
 | `/df-build WP-XXX` | 4. Codex implements, you verify, you commit | WP state `DONE` |
 | `/df-run` | 5. Unattended loop: spec→build every WP, then prove the product runs | backlog done + `project/MORNING.md` written |
 | `/df-status` | anytime | — |
+| `/df-retro` | 6. Morning: distil the night into cross-project lessons | `LESSONS.md` updated + committed, candidates emptied |
 | `/df-pause` | credits low, or you must stop | `project/RESUME.md` written, wake-up scheduled |
 | `/df-resume` | after a pause | checkpoint verified against the repos |
 
@@ -52,7 +74,8 @@ The same applies after implementation: Codex reviews its own work when you send 
 6. **Commit only after your own independent check passes.** Never `git push` unless the user asks.
 7. **Update `project/BACKLOG.md` on every state transition**, immediately. It is the only source of truth for progress.
 8. **Ask the user only when they are present** — i.e. during `/df-intake`. Once `/df-run` is going, you decide and log. See the prime directive.
-9. **Never fabricate Codex output.** If a `codex exec` call fails or returns nothing, say so and stop.
+9. **Every lesson is general and anonymous.** `LESSONS.md` holds rules that apply to a project this harness has never seen, with the project's shape as context and never its identity. Project-specific truth stays in `project/`.
+10. **Never fabricate Codex output.** If a `codex exec` call fails or returns nothing, say so and stop.
 
 ## State machine (per WP, tracked in BACKLOG.md)
 
@@ -75,6 +98,8 @@ Always true, no trigger needed:
 ## File map
 
 ```
+LESSONS.md                  cross-project memory: what previous nights taught. Read every phase;
+                            written only by /df-retro. Never contains project identity.
 project/intake/             USER-SUPPLIED source material: spec docs, mockups, data samples
                             [read-only — never edit; /df-intake consumes all of it]
 project/PROJECT.md          repos, stacks, run/test/lint commands, conventions   [written by /df-intake]
@@ -96,4 +121,4 @@ project/MORNING.md          the report the user reads over coffee — written at
 
 ## Reading discipline
 
-Load only the phase command you are running plus `project/PROJECT.md`. Do not read every WP spec to answer a question about one WP.
+Load only the phase command you are running, plus `project/PROJECT.md` and `LESSONS.md`. Do not read every WP spec to answer a question about one WP.

@@ -13,6 +13,7 @@ The user launched `/df-run` and went to bed. Nobody is coming. Act accordingly.
 
 When you hit something you would normally ask about, run this — it takes seconds, not a deliberation.
 
+0. **Did a previous night already answer it?** `LESSONS.md` — the harness's cross-project memory. A lesson that fits the situation outranks reasoning it out again from scratch; that is why it exists. Follow it, and bump its `hits`. Nothing fits → carry on to 1.
 1. **Does the spec answer it?** `project/SPEC.md`, then the WP spec, then `project/PROJECT.md`. Read before deciding.
 2. **Does the codebase answer it?** The existing pattern in the repo wins over your preference. Consistency is a decision you never have to defend.
 3. **Does a convention answer it?** Framework defaults, REST/HTTP semantics, the stack's idioms. Standard beats bespoke.
@@ -39,6 +40,25 @@ Every judgment call the user would plausibly want to revisit. Cheap to write, an
 ```
 
 Flag anything you are less than confident about with `⚠` in the `#` column. Those are the first lines you show in the morning report.
+
+## 2b. `LESSONS.md` candidates — capture the cost, distil later
+
+Every time the night costs you something, append **one line** to the `Candidates` section of
+`LESSONS.md` and keep moving. Triggers, no judgement required:
+
+- a spec that needed ≥3 Codex review rounds, or got descoped to get a READY
+- a WP reverted, blocked, or split mid-flight
+- ≥2 fix rounds on the same defect
+- a decision you later had to reverse
+- time lost to the environment, the tooling, or the protocol itself rather than to the product
+
+Format: what happened, what it cost, and — if you can see it — the rule that would have avoided it.
+`- cand: frontend guessed the response shape from the spec, 2 fix rounds → paste the backend's real signatures into the frontend prompt`
+
+Rules: **candidates are cheap and unfiltered, lessons are not.** Do not edit the lesson sections during
+the run, do not stop to generalise, do not write project identity into the line. `/df-retro` decides in
+the morning which of these are real, with the user's grades in hand. If a candidate is genuinely
+project-specific, it dies there — that is the system working.
 
 ## 3. When the pipeline may stop — the only three
 
@@ -114,6 +134,11 @@ Write it last, rewrite it fully each night. The user reads this before anything 
 ## Decisions taken  (full list in project/DECISIONS.md)
 <the ⚠ ones, one line each>
 
+## Grade these, then run `/df-retro`
+<the ⚠ decisions again as a numbered list, each with the alternative rejected, so the user can say
+"#3 was wrong" in one line. Put their verdicts in the `Grade` column of project/DECISIONS.md.>
+<n> lesson candidates are waiting in LESSONS.md; `/df-retro` distils them with your grades.
+
 ## How to run it right now
 <exact commands, per repo, that you actually executed and saw work>
 
@@ -132,3 +157,4 @@ You are spending a finite budget while nobody watches. Do not waste it.
 - Prefer one precise Codex round over three vague ones: a FIX prompt with exact failing output beats "it doesn't work".
 - Do not burn rounds polishing a WP that already meets its acceptance criteria. Meets spec = done.
 - Keep your own reports to the compact block in `df-run.md`. Prose costs tokens that could have been a work package.
+- A candidate line is one line. Retrospection is a morning activity with the user present; at 3am it is procrastination with a budget.

@@ -6,6 +6,7 @@ argument-hint: [optional: stop-after WP-XXX]
 # /df-run — run the factory
 
 **Load the `night-shift` skill now, before the first iteration.** It governs every decision you make from here.
+**Read `LESSONS.md` in the same breath.** Previous nights already paid for those answers; step 0 of every decision tonight is checking whether one applies.
 
 Preconditions: `project/BACKLOG.md` exists. That is all. Do **not** wait for plan approval — if the user launched this, the plan is approved.
 
@@ -27,6 +28,7 @@ loop:
     if state == TODO:    follow .claude/commands/df-spec.md
     if state == SPECCED: follow .claude/commands/df-build.md
     update BACKLOG, write project/RESUME.md, append any calls to project/DECISIONS.md
+    anything cost you rounds? -> one candidate line in LESSONS.md (night-shift skill 2b), then move on
     report one compact block, continue
 on exit:
     final integration pass (night-shift skill §6)
@@ -67,4 +69,13 @@ WP-XXX <title> — DONE | BLOCKED
 
 ## On completion
 
-Run the final integration pass, then write `project/MORNING.md`. Final message to the user: the bottom line, what needs their eyes, and the command to run the product. Then stop — do not invent new work to fill the night.
+Run the final integration pass, then write `project/MORNING.md`.
+
+Leave the `Candidates` section of `LESSONS.md` as it is — unfiltered, undistilled, uncommitted to the lesson
+sections. Distilling is `/df-retro`'s job in the morning, and it is better done with the user's grades than
+with your own account of your own night. The one exception: a candidate about the *harness protocol itself*
+that cost you the night and cannot possibly be project-specific (a step that always misfires, a command that
+never had the input it needs) — promote that one, so the next run does not repeat it before anyone is awake.
+
+Final message to the user: the bottom line, what needs their eyes, the command to run the product, and
+`Next: grade the ⚠ decisions, then /df-retro`. Then stop — do not invent new work to fill the night.
