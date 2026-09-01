@@ -18,6 +18,7 @@ Drop your spec, mockups and supporting documents in `project/intake/`, point it 
 | 1 | `/df-intake <frontend-repo> <backend-repo>` | Claude reads everything in `project/intake/` first, then asks only what's still missing. Answer until it stops. Repeat as long as it keeps asking — this is the step that decides quality. |
 | 2 | `/df-plan` | Review the work-package list; approve, or ask to split/reorder. |
 | 3 | `/df-run` | Go to bed. See below. |
+| 4 | `/df-retro` | In the morning, after reading the report: grade the calls Claude made, and it turns the night into lessons for the next project. |
 | — | `/df-status` | Where things stand, anytime. |
 | — | `/df-pause` / `/df-resume` | Stop safely when credits run low, pick up later. See below. |
 
@@ -45,6 +46,27 @@ When the wake-up fires, Claude re-reads the checkpoint, reconciles it against th
 
 **Codex runs out of tokens.** Claude keeps working alone, in this order: draft the remaining WP specs, write its own acceptance checks, then implement only *trivial* work packages (≤3 files, no schema, no auth, no dependency, no contract change). Those commits are tagged `Implemented-by: Claude` and marked `DONE*` in the backlog. When Codex is back, it reviews every unreviewed spec and every `DONE*` commit before any new work starts.
 
+## It gets better with each project
+
+The harness keeps a memory across projects in `LESSONS.md`, at the root — `project/` belongs to the
+current job and gets replaced, that file does not. Every night, whenever something costs rounds (a spec
+Codex kept objecting to, a reverted package, a defect that took three fixes, an hour lost to the dev
+environment), Claude drops a one-line candidate into it and keeps working.
+
+In the morning you read `project/MORNING.md`, and at the bottom it asks you to grade the judgment calls
+it made while you slept — `good`, `bad`, or `bad: what I'd have done` in the `Grade` column of
+`project/DECISIONS.md`. Then `/df-retro` distils: your grades plus the night's candidates become a handful
+of general rules, and step 0 of every decision on the *next* project is checking whether one of them
+already answers it.
+
+Two things it will not do. It will not keep lessons that are only true of this product — those stay in
+`project/` — and it will not write your product, client or repo names into `LESSONS.md`. A lesson records
+the *shape* of the job it came from ("a fintech dashboard SPA on React + FastAPI, package touching auth")
+and what the mistake cost, never what the thing was. The file is capped at 30 lessons; adding one past the
+cap means merging or dropping the weakest, so it stays something readable at 2am rather than an archive.
+
+If you start a new project by copying this harness, copy `LESSONS.md` with it. That file is the harness.
+
 ## Where to look
 
 - `project/intake/` — your source material, exactly as you left it
@@ -54,6 +76,7 @@ When the wake-up fires, Claude re-reads the checkpoint, reconciles it against th
 - `project/MORNING.md` — **read this first in the morning**
 - `project/DECISIONS.md` — every call Claude made while you were away
 - `project/RESUME.md` — the checkpoint: where things stood, what to do next
+- `LESSONS.md` — what the harness learned on this and every previous project
 - `project/wps/WP-XXX.log.md` — what Codex said, what Claude accepted or rejected, and why
 
 ## Rules the harness enforces
