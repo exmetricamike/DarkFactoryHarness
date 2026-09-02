@@ -13,8 +13,12 @@ domain removed and the finance domain added.
 
 | Role | Path | Branch | Language/Framework | Package manager |
 |---|---|---|---|---|
-| Backend | `C:\Users\micpa\Root\Development\FamilyDashboard\E0ApiEngine_Backend` | `master` | Python 3.14 · Django 6.0.4 · DRF 3.17 | pip (`pyproject.toml`) |
-| Frontend | `C:\Users\micpa\Root\Development\FamilyDashboard\Frontend` | `master` (**zero commits**) | TypeScript · Next 16.2.9 · React 19.2.7 | npm (`package-lock.json`) |
+| Backend | `C:\Users\micpa\Root\Development\FamilyDashboard\E0ApiEngine_Backend` | `dark-factory/p0-p2` | Python 3.14 · Django 6.1 · DRF 3.18 (in `.venv`) | pip (`pyproject.toml`) |
+| Frontend | `C:\Users\micpa\Root\Development\FamilyDashboard\Frontend` | `dark-factory/p0-p2` (baselined `73adecd`) | TypeScript · Next 16.2.9 · React 19.2.7 | npm (`package-lock.json`) |
+
+Both repos work on the branch `dark-factory/p0-p2`, cut from each repo's `master`, so the night's
+work can be reviewed or discarded in one diff. The backend `.venv` exists as of WP-001; commands
+below use it.
 
 Sibling reference material outside both repos: `..\Layout.pptx` (the dashboard sketch; its pie
 and cash-flow chart are `ppt/media/image1.png` and `image2.png` inside it).

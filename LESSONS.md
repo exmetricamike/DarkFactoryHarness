@@ -68,3 +68,13 @@ Appended during the night, cheap and unfiltered. `/df-retro` promotes, merges or
 line here and leaves the section empty. Anything still sitting here at the start of a new
 project is dropped — an undistilled candidate is noise, not memory.
 
+- cand: `codex exec resume` rejects `--cd`/`-s`/`--approve-for-me` that `codex exec` accepts (CLI 0.152) → cost 1 wasted round; verify subcommand flags separately from the parent command's
+- cand: a failed codex call leaves the previous round's `-o` file in place, and the stale reply reads as Codex repeating itself verbatim → `rm -f` the out-file before every call and check the exit code
+- cand: WP spec cited the coordinator's own SPEC.md, which the implementer cannot read → inline every referenced section; a citation to a path outside the repo is a broken prompt
+- cand: spec invented an endpoint (`DELETE`) the codebase never had, from reading the URL file without checking the view's methods → read the handler, not the route table
+- cand: a permission class whose only endpoint is gated by a stricter class ships untested and its HTTP test passes for the wrong reason → unit-test the class directly when no route exercises it
+- cand: Codex's sandbox blocked pip, so it ran the suite against an UNRELATED project's site-packages via PYTHONPATH and reported green → never accept a TESTS: line without re-running in the real env; check which interpreter it used
+- cand: coordinator's own acceptance script failed 5/25 on first run, all its own bugs (Windows python.exe cannot read Git Bash /tmp paths) → parse JSON with grep in cross-toolchain checks, and always run the check once before trusting a PASS
+- cand: `manage.py shell < script.py` runs an InteractiveConsole that swallows sys.exit and always returns 0 → judge such checks on printed output plus a sentinel line, never on exit code
+- cand: acceptance check reported ALL PASS while one section could not fail → mutation-test every new check once (break an expectation, confirm FAIL) before trusting a green
+- cand: pre-provisioning the venv before the implement call turned a PARTIAL into a clean DONE with 0 fix rounds → always provision the environment coordinator-side first

@@ -1,5 +1,5 @@
 # Backlog
-Updated: 2026-09-02 | DONE 0/14
+Updated: 2026-09-02 | DONE 2/15
 
 Scope: P0–P2 (net worth · cash flow + FX · 5–10 year forecast). P3/P4 deferred — see below.
 `be` = `E0ApiEngine_Backend` · `fe` = `Frontend`.
@@ -8,8 +8,8 @@ Scope: P0–P2 (net worth · cash flow + FX · 5–10 year forecast). P3/P4 defe
 
 | ID | Title | Repos | Depends | State | Codex session | Notes |
 |----|-------|-------|---------|-------|---------------|-------|
-| WP-001 | Backend environment + template strip | be | — | TODO | — | `manage.py migrate` runs against Postgres and `pytest` is green on an app that is now only auth, invites, RBAC and a `Household`. |
-| WP-002 | Finance schema, seed data, first migration | be | WP-001 | TODO | — | Creating a household seeds its 8 asset kinds (canvas colours) and ~30 flow categories; every model in §3 exists with its constraints. |
+| WP-001 | Backend environment + template strip | be | — | **DONE** `2aa266d` | 01a061e2 | `manage.py migrate` runs against Postgres and `pytest` is green on an app that is now only auth, invites, RBAC and a `Household`. |
+| WP-002 | Finance schema, seed data, first migration | be | WP-001 | **DONE** `e14fe9a` | 01a06230 | Creating a household seeds its 8 asset kinds (canvas colours) and ~30 flow categories; every model in §3 exists with its constraints. |
 | WP-003 | Valuation, FX, loan schedule + the golden fixture | be | WP-002 | TODO | — | `net_worth()` returns gross/debt/net for any past month from real `Valuation` rows, and the hand-computed fixture proves it. |
 | WP-004 | Cash-flow services + `unexplained_change` | be | WP-003 | TODO | — | A month's income, expenses and transfers come back correctly classified, with the mortgage split into interest and principal. |
 | WP-005 | Projection + balance forecast | be | WP-003 | TODO | — | Recurring rules and the loan schedule expand into a 10-year projection with a minimum, its month, and the first negative month. |
@@ -22,6 +22,7 @@ Scope: P0–P2 (net worth · cash flow + FX · 5–10 year forecast). P3/P4 defe
 | WP-012 | Forecast + rules | be, fe | WP-005, WP-008 | TODO | — | The forecast page answers "will we run out of money", marks the low point, and lists the rules driving it. |
 | WP-013 | Cash-flow ledger + settings | be, fe | WP-004, WP-008 | TODO | — | The full transaction ledger with filters and a category breakdown, plus settings for household, members, kinds, categories and FX. |
 | WP-014 | Onboarding + empty state | be, fe | WP-010 | TODO | — | A brand-new user registers and reaches a dashboard with real numbers without ever seeing an empty screen that looks broken. |
+| WP-015 | Clear the Django 7 deprecation warnings | be | WP-001 | TODO | — | The suite runs without warnings, so a real one is never lost in the noise: `EMAIL_BACKEND` migrated to MAILERS, `send_mail(fail_silently=)` replaced. (Found during WP-001; 5 warnings in kept template code.) |
 
 State: `TODO` → `SPECCED` → `BUILDING` → `VERIFY` → `DONE` | `BLOCKED`
 Codex-down only: `SPECCED-UNREVIEWED`, `DONE*` — both are debt, drain before starting new WPs.
