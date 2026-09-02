@@ -49,11 +49,26 @@ Write it into the WP log as `Codex session: <uuid>`. If the grep is empty, fall 
 
 ## Follow-up calls (same session)
 
+**`codex exec resume` does NOT accept `--cd`, `-s/--sandbox` or `--approve-for-me`.** Its usage is
+`codex exec resume [OPTIONS] [SESSION_ID] [PROMPT]`, and the only options that matter here are
+`-o` and `-c`. Passing `--cd` fails with `error: unexpected argument '--cd' found` and exit 2.
+Set the working directory with a shell `cd` instead, and use **absolute paths** for `-o` and the
+stdin redirect, because the `cd` changes what relative paths mean:
+
 ```bash
-codex exec resume "<SESSION_ID>" --cd "<REPO_PATH>" -s workspace-write --approve-for-me \
+rm -f "<HARNESS>/project/wps/WP-XXX.out.md"          # see the stale-reply trap below
+cd "<REPO_PATH>" && codex exec resume "<SESSION_ID>" \
   -o "<HARNESS>/project/wps/WP-XXX.out.md" \
   - < "<HARNESS>/project/wps/WP-XXX.prompt.md"
 ```
+
+Sandbox mode carries over from the session; override it with `-c sandbox_mode="workspace-write"`
+if a resumed session needs to write and the first call was `-s read-only`.
+
+> **The stale-reply trap.** `-o` is only written when the call succeeds. A failed resume leaves
+> the *previous* round's `.out.md` sitting there, and reading it looks exactly like Codex
+> repeating itself verbatim — which is the tell. **Always `rm -f` the `.out.md` before the call
+> and check the exit code**, or you will "resolve" the same issue list twice.
 
 Overwrite `.prompt.md` and `.out.md` each round; the durable record is the WP log, which you append to every round.
 
@@ -169,6 +184,29 @@ Your previous implementation of WP-XXX failed verification. Fix it. Do not start
 ## Required output format
 <same as IMPLEMENT block>
 ```
+
+## Codex has no network — plan for it
+
+Its sandbox blocks package installs. `pip install`, `npm install`, `poetry add` and friends will
+fail on every WP that needs a new dependency. Two consequences, both learned the hard way:
+
+1. **Do the install yourself, before the implement call.** Create the venv / run `npm install`
+   from the coordinator side where the network works, then tell Codex in the prompt that the
+   environment is already provisioned and it must not try.
+2. **Forbid the workaround explicitly**, in every IMPLEMENT prompt:
+
+   > Your sandbox has no network. If a dependency is missing, stop and report `PARTIAL` saying
+   > which one. **Never** satisfy an import by pointing `PYTHONPATH`, `NODE_PATH` or any other
+   > loader at packages outside this repository — another project's virtualenv or `node_modules`
+   > on this machine is not this project's environment, and a suite that passes against it proves
+   > nothing about this one. Do not read, copy from, or write to any directory outside this repo.
+
+   Left unsaid, a blocked Codex will find a sibling project's environment on disk and run the
+   suite green against it. It reports this honestly in `NOTES`, which is the only reason it gets
+   caught — so **always read `NOTES`, and always check which interpreter the `TESTS:` line used.**
+
+Anything it does reach outside the repo is an incident: scrub the other project's identity out of
+the WP log before committing, and never let it into `LESSONS.md` (invariant 9).
 
 ## Parsing the reply
 
