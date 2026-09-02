@@ -139,6 +139,39 @@ anything else guarantees a mismatch the first time a household is created.
 
 ---
 
+## Phase 2 — `/df-plan`, 2026-09-02
+
+## D-17 — Backlog shape: 14 WPs, six backend foundations then vertical slices
+**Decision:** Approved by the user as proposed. See `BACKLOG.md`.
+**Why these three shaping calls, specifically:**
+- **One schema, one migration (WP-002)** rather than three tranches by phase. The source spec
+  calls `models.py` "one coherent schema"; splitting it P0/P1/P2 buys nothing and costs two
+  extra migration rounds plus the chance of a half-built constraint.
+- **`seed_demo` early (WP-006), not last.** It builds the canvas's exact household, so every
+  frontend WP has data to render instead of hand-creating rows, and it exercises all three
+  service modules before any UI exists.
+- **Onboarding last (WP-014) despite being acceptance A1.** Its step 4 *is* the close screen
+  (source spec §8.3), so it cannot precede WP-010, and `seed_demo` means nothing is blocked by
+  its absence. Ordered by risk and unblocking, not by the order a user meets the screens.
+**Considered and declined:** splitting WP-001 into delete-then-rename (offered; user kept it
+whole), and cutting WP-013 up front rather than leaving it as the overnight cut line.
+**Reversal cost:** the plan is a starting order, not a contract. Reordering, splitting or
+merging overnight is expected — log it and update the backlog.
+**Grade:**
+
+## D-18 — WP-001 fallback if the rename overruns
+**Decision:** If `Organization` → `Household` cannot be landed green, keep the template's
+internal names and alias only at the API boundary, then continue. Do not stop the line for a
+naming question.
+**Why:** The rename crosses models, `access.py`, `permissions.py`, every view and serializer and
+the whole test suite at once, while half that suite is being deleted — the single most likely
+place for the night to stall. The alias is ugly and reversible in one later WP; a stalled
+pipeline at 1am is neither.
+**Reversal cost:** one rename WP, later, against a suite that is by then green and much smaller.
+**Grade:**
+
+---
+
 ## Open — needs the user
 
-_None. `/df-plan` is unblocked._
+_None. `/df-spec WP-001` is unblocked._
