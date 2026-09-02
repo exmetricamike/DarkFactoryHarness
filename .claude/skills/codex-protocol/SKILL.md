@@ -5,7 +5,16 @@ description: How to invoke Codex CLI as the implementer agent - exact commands, 
 
 # Codex protocol
 
-Codex CLI `0.149.1`. Verify with `codex --version`; if the major/minor differs, re-check `codex exec --help` before trusting the flags below.
+Codex CLI `0.152.0` (flags below re-verified against `codex exec --help` at this version). Verify with `codex --version`; if the major/minor differs, re-check `codex exec --help` before trusting the flags below.
+
+A version print is not a reachability check. Before an unattended run, prove auth with one cheap call:
+
+```bash
+codex exec --cd "<REPO_PATH>" -s read-only -o smoke.out.md \
+  "Reply with exactly one line naming this repo's primary language. Do not modify any files."
+```
+
+An empty `smoke.out.md` means the night would have run entirely on the Codex-down ladder (`continuity` skill §B) — find that out now, not at 1am.
 
 ## Golden rules
 
