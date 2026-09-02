@@ -1,1 +1,7 @@
 .idea/
+
+# Project source material and pulled design assets — never travel with the harness.
+# README.md stays: it is the harness telling the user what to drop here.
+project/intake/*
+!project/intake/README.md
+project/design-canvas.html
