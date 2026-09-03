@@ -5,3 +5,9 @@
 project/intake/*
 !project/intake/README.md
 project/design-canvas.html
+
+# Raw Codex session artifacts: large, regenerable, and superseded by WP-XXX.log.md.
+# The durable record is the spec, the prompt, the last reply and the log.
+project/wps/*.build.log
+project/wps/*.jsonl
+project/wps/*.err.txt
