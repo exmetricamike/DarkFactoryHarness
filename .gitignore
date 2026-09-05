@@ -1,13 +1,18 @@
 .idea/
 
-# Project source material and pulled design assets — never travel with the harness.
-# README.md stays: it is the harness telling the user what to drop here.
+# --- Project data never travels with the harness ---
+# Everything under project/ is per-project working state: intake material, the spec,
+# the backlog, WP specs and prompts, Codex replies, acceptance checks, the morning
+# report. It is wiped or replaced between projects and must never be committed.
+# Only the scaffolding that tells the user what goes where is tracked.
+# Cross-project memory lives in LESSONS.md at the repo root, which IS tracked.
+project/*
+!project/intake/
 project/intake/*
 !project/intake/README.md
-project/design-canvas.html
-
-# Raw Codex session artifacts: large, regenerable, and superseded by WP-XXX.log.md.
-# The durable record is the spec, the prompt, the last reply and the log.
-project/wps/*.build.log
-project/wps/*.jsonl
-project/wps/*.err.txt
+!project/checks/
+project/checks/*
+!project/checks/README.md
+!project/wps/
+project/wps/*
+!project/wps/.keep
