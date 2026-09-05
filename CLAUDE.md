@@ -76,6 +76,7 @@ file does not.
 8. **Ask the user only when they are present** — i.e. during `/df-intake`. Once `/df-run` is going, you decide and log. See the prime directive.
 9. **Every lesson is general and anonymous.** `LESSONS.md` holds rules that apply to a project this harness has never seen, with the project's shape as context and never its identity. Project-specific truth stays in `project/`.
 10. **Never fabricate Codex output.** If a `codex exec` call fails or returns nothing, say so and stop.
+11. **`project/` is never committed.** The harness repo holds the harness and `LESSONS.md`, nothing else. Everything under `project/` is per-project working state and is git-ignored (only the scaffolding READMEs are tracked). When you commit in *this* repo, name the paths — never `git add -A`, never `git add project/...` with `-f`.
 
 ## State machine (per WP, tracked in BACKLOG.md)
 
