@@ -1,6 +1,6 @@
 ---
 name: night-shift
-description: Unattended autonomous operation - how to decide without the user, when the pipeline may stop (almost never), how to verify a running product through the browser, and what to leave behind for the morning. Load at the start of /df-run and whenever a decision would otherwise block.
+description: Unattended operation - deciding alone, when to stop, browser verification, the morning report. Load at /df-run start or when a decision would block.
 ---
 
 # Night shift — running the factory alone

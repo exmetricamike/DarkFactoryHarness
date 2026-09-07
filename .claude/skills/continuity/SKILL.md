@@ -1,6 +1,6 @@
 ---
 name: continuity
-description: Survive credit exhaustion on either side - checkpoint and resume a paused Claude session, and keep working when Codex runs out of tokens. Load when a usage-limit warning appears, when a codex call fails on quota, or on /df-pause and /df-resume.
+description: Checkpoint and resume when Claude or Codex runs out of credit. Load on a usage-limit warning, a codex quota failure, /df-pause or /df-resume.
 ---
 
 # Continuity protocol

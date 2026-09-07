@@ -1,6 +1,6 @@
 ---
 name: codex-protocol
-description: How to invoke Codex CLI as the implementer agent - exact commands, session persistence, self-contained prompt envelopes, reply parsing, and failure handling. Load before any codex exec call in the Dark Factory flow.
+description: Exact Codex CLI usage - commands, session persistence, self-contained prompts, reply parsing. Load before any codex exec call.
 ---
 
 # Codex protocol
