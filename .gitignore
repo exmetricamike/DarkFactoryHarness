@@ -1,18 +1,24 @@
 .idea/
 
 # --- Project data never travels with the harness ---
-# Everything under project/ is per-project working state: intake material, the spec,
-# the backlog, WP specs and prompts, Codex replies, acceptance checks, the morning
-# report. It is wiped or replaced between projects and must never be committed.
+# Everything under active-project/ is the current run's working state: intake material,
+# the spec, the backlog, WP specs and prompts, Codex replies, acceptance checks, the
+# morning report. It is wiped or replaced between projects and must never be committed.
 # Only the scaffolding that tells the user what goes where is tracked.
 # Cross-project memory lives in LESSONS.md at the repo root, which IS tracked.
-project/*
-!project/intake/
-project/intake/*
-!project/intake/README.md
-!project/checks/
-project/checks/*
-!project/checks/README.md
-!project/wps/
-project/wps/*
-!project/wps/.keep
+active-project/*
+!active-project/intake/
+active-project/intake/*
+!active-project/intake/README.md
+!active-project/checks/
+active-project/checks/*
+!active-project/checks/README.md
+!active-project/wps/
+active-project/wps/*
+!active-project/wps/.keep
+
+# --- Closed-out projects, kept for reference only ---
+# Same rule: never committed. /archive-project moves a finished run here;
+# /reactivate-project moves one back into active-project/.
+projects-archive/*
+!projects-archive/README.md

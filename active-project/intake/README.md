@@ -23,5 +23,5 @@ Two things that help a lot:
 2. **If two documents disagree, say which one wins** — a one-line `NOTES.md` in this
    folder is enough. Otherwise Claude decides, and it will pick the more recent one.
 
-The refined, actionable spec Claude produces from all this lands in `project/SPEC.md`.
+The refined, actionable spec Claude produces from all this lands in `active-project/SPEC.md`.
 This folder stays as you left it — it is the source material, and it is never edited.

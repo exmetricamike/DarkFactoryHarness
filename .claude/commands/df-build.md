@@ -29,7 +29,7 @@ Run all four. Record actual output, not impressions.
 1. **Diff review**: `git -C <repo> diff --stat <baseline>..` then read the full diff.
    Reject-worthy: files outside scope, secrets/keys committed, deleted tests, `any`/silenced types where the repo doesn't allow it, TODO stubs presented as done, error paths swallowed, dependencies added that the WP never authorized, copy-paste of an existing helper instead of reuse.
 2. **Their tests**: run the repo's test + lint + typecheck commands from `PROJECT.md` yourself. Codex's `TESTS:` line is a claim, not evidence.
-3. **Your independent check** — the one from spec §6, written by you into `project/checks/WP-XXX.*` (never inside the repo). Prefer a real probe over a unit test: start the service and curl the endpoint, drive the UI, inspect the DB row. It must be able to fail: confirm it fails against the pre-WP baseline (or reason explicitly why that is impossible).
+3. **Your independent check** — the one from spec §6, written by you into `active-project/checks/WP-XXX.*` (never inside the repo). Prefer a real probe over a unit test: start the service and curl the endpoint, drive the UI, inspect the DB row. It must be able to fail: confirm it fails against the pre-WP baseline (or reason explicitly why that is impossible).
 4. **Run the actual product** — mandatory for any WP touching the frontend, and for any backend WP with a reachable route. `night-shift` skill §5 has the procedure: start the services in the background, poll for readiness, `curl` the new routes including their failure paths, then drive the UI with the `claude-in-chrome` tools and read the console and network for errors the DOM hides. Green tests over a blank screen is a failed WP.
 5. **Acceptance criteria**: walk §6 one by one, mark each PASS/FAIL with the evidence line. Then judge it as a user would — empty states, error states, labels, contrast, a window at a normal size. Defects a user would notice go back as a FIX round; they are not polish.
 
@@ -47,7 +47,7 @@ Per repo, only the files this WP touched:
 git -C <repo> add -A && git -C <repo> commit -m "WP-XXX: <title>
 
 <1-3 lines: what changed and why>
-Spec: project/wps/WP-XXX.md
+Spec: active-project/wps/WP-XXX.md
 Tests: <command> -> <result>"
 ```
 
@@ -56,7 +56,7 @@ Never `git push` unless the user asks. Cross-repo: commit backend then frontend,
 ## Step 6 — close out
 
 1. BACKLOG: state `DONE`, update the `DONE n/total` header.
-2. Append to `project/wps/WP-XXX.log.md`: fix rounds, verification evidence, commit shas per repo, follow-ups discovered.
+2. Append to `active-project/wps/WP-XXX.log.md`: fix rounds, verification evidence, commit shas per repo, follow-ups discovered.
 3. Any follow-up worth doing → new WP row (`TODO`) at the end of the backlog. Never silently absorb it into the next WP.
-4. Rewrite `project/RESUME.md` (`continuity` skill format). One write, and a hard cutoff now costs nothing.
+4. Rewrite `active-project/RESUME.md` (`continuity` skill format). One write, and a hard cutoff now costs nothing.
 5. Report: outcome sentence, commit shas, what you verified and how, anything deferred, `Next: /df-spec WP-YYY`.

@@ -4,9 +4,9 @@ description: Where the project stands - backlog, repo state, next action
 
 # /df-status
 
-1. Read `project/BACKLOG.md`.
-2. Per repo in `project/PROJECT.md`: `git -C <repo> status --short` and `git -C <repo> log --oneline -5`.
-3. If a WP is `BUILDING`/`VERIFY`, read the tail of its `project/wps/WP-XXX.log.md`.
+1. Read `active-project/BACKLOG.md`.
+2. Per repo in `active-project/PROJECT.md`: `git -C <repo> status --short` and `git -C <repo> log --oneline -5`.
+3. If a WP is `BUILDING`/`VERIFY`, read the tail of its `active-project/wps/WP-XXX.log.md`.
 
 Report exactly this, nothing more:
 

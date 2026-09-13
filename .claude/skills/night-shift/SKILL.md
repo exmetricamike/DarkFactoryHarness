@@ -14,7 +14,7 @@ The user launched `/df-run` and went to bed. Nobody is coming. Act accordingly.
 When you hit something you would normally ask about, run this — it takes seconds, not a deliberation.
 
 0. **Did a previous night already answer it?** `LESSONS.md` — the harness's cross-project memory. A lesson that fits the situation outranks reasoning it out again from scratch; that is why it exists. Follow it, and bump its `hits`. Nothing fits → carry on to 1.
-1. **Does the spec answer it?** `project/SPEC.md`, then the WP spec, then `project/PROJECT.md`. Read before deciding.
+1. **Does the spec answer it?** `active-project/SPEC.md`, then the WP spec, then `active-project/PROJECT.md`. Read before deciding.
 2. **Does the codebase answer it?** The existing pattern in the repo wins over your preference. Consistency is a decision you never have to defend.
 3. **Does a convention answer it?** Framework defaults, REST/HTTP semantics, the stack's idioms. Standard beats bespoke.
 4. **Still open → apply the tie-breakers**, in order:
@@ -23,13 +23,13 @@ When you hit something you would normally ask about, run this — it takes secon
    - **Narrow over general.** Build the case in the spec, not the framework for cases nobody asked for.
    - **Boring over novel.** The thing the next reader recognizes instantly.
    - **Ship the smaller slice.** If a WP has an obvious 80% version and a 100% version that needs an answer you don't have, ship the 80% and log the remainder as a follow-up WP.
-5. **Log it** in `project/DECISIONS.md`, one row, then continue. Do not deliberate twice about the same thing — if you already decided it, follow your own precedent.
+5. **Log it** in `active-project/DECISIONS.md`, one row, then continue. Do not deliberate twice about the same thing — if you already decided it, follow your own precedent.
 
 **Never** stop to ask about: naming, file layout, library choice among installed options, error message wording, validation strictness, pagination defaults, empty/loading/error state design, ordering of work, whether a WP is big enough to split, or how to word a commit.
 
 **Deciding alone does not mean deciding by yourself.** Codex is awake and it reads the repo. On a genuinely close design call inside a WP, put both options in the review round and ask which one fits the existing code better — one extra round, a much better answer. The user is asleep; your collaborator is not.
 
-## 2. `project/DECISIONS.md` — append-only
+## 2. `active-project/DECISIONS.md` — append-only
 
 Every judgment call the user would plausibly want to revisit. Cheap to write, and it is the entire morning conversation.
 
@@ -83,7 +83,7 @@ When you do stop a WP for reason 1 or 2, fire a `PushNotification` (load it with
 | Test suite is flaky | Re-run once. Still flaky → treat the flake as a finding, log it, judge the WP on the deterministic tests. Do not delete or skip tests to get green, and do not let a flake block a WP. |
 | Dev environment broken (port, missing service, bad env var) | Fix it — that is environment, not product code, and it is yours to fix. Log it. |
 | A WP turns out much bigger than specced | Split it: implement the core slice now, add the remainder as a new WP at the end of the backlog. |
-| Spec turns out wrong once you see the code | Amend `project/SPEC.md`, log the amendment with a `⚠`, continue. The spec serves the product, not the reverse. |
+| Spec turns out wrong once you see the code | Amend `active-project/SPEC.md`, log the amendment with a `⚠`, continue. The spec serves the product, not the reverse. |
 | You are unsure whether something is in scope | Out. Log it as a follow-up WP. Scope creep at 3am is unsupervised scope creep. |
 
 ## 5. Verifying that it actually runs
@@ -112,7 +112,7 @@ The product must be usable, not merely built.
 4. Anything broken → one more Codex round if credits allow; otherwise record it precisely at the top of the morning report.
 5. Leave the repos committed and clean, and leave the app startable with a single documented command per repo.
 
-## 7. The morning report — `project/MORNING.md`
+## 7. The morning report — `active-project/MORNING.md`
 
 Write it last, rewrite it fully each night. The user reads this before anything else, coffee in hand.
 
@@ -131,12 +131,12 @@ Write it last, rewrite it fully each night. The user reads this before anything 
 ## Not done
 | WP | State | Why | What it needs |
 
-## Decisions taken  (full list in project/DECISIONS.md)
+## Decisions taken  (full list in active-project/DECISIONS.md)
 <the ⚠ ones, one line each>
 
 ## Grade these, then run `/df-retro`
 <the ⚠ decisions again as a numbered list, each with the alternative rejected, so the user can say
-"#3 was wrong" in one line. Put their verdicts in the `Grade` column of project/DECISIONS.md.>
+"#3 was wrong" in one line. Put their verdicts in the `Grade` column of active-project/DECISIONS.md.>
 <n> lesson candidates are waiting in LESSONS.md; `/df-retro` distils them with your grades.
 
 ## How to run it right now

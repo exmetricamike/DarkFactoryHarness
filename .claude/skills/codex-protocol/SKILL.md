@@ -18,8 +18,8 @@ An empty `smoke.out.md` means the night would have run entirely on the Codex-dow
 
 ## Golden rules
 
-1. **Self-contained prompts.** Codex starts cold and its sandbox root is the *repo*, not this harness. Never write "see project/wps/WP-003.md" — inline the full text. Build the prompt as a file, pipe it on stdin.
-2. **One Codex session per WP**, reused for review rounds, implementation and fixes. Store the session id in `project/wps/WP-XXX.log.md`.
+1. **Self-contained prompts.** Codex starts cold and its sandbox root is the *repo*, not this harness. Never write "see active-project/wps/WP-003.md" — inline the full text. Build the prompt as a file, pipe it on stdin.
+2. **One Codex session per WP**, reused for review rounds, implementation and fixes. Store the session id in `active-project/wps/WP-XXX.log.md`.
 3. **Always capture output** with `-o` so you can read the reply as a file instead of scraping the terminal.
 4. **Codex is a collaborator, not an executor.** It reads the real repo with fresh eyes; you wrote the spec and are attached to it. Ask for critique before implementation, take its objections seriously, and resolve them in the spec. You still own scope and the final decision — but you earn that by answering its points, not by ignoring them.
 
@@ -33,16 +33,16 @@ Never skip the middle. An unreviewed spec goes to no implementer, including you.
 
 ```bash
 codex exec --cd "<REPO_PATH>" -s workspace-write --approve-for-me --json \
-  -o "<HARNESS>/project/wps/WP-XXX.out.md" \
-  - < "<HARNESS>/project/wps/WP-XXX.prompt.md" \
-  | tee "<HARNESS>/project/wps/WP-XXX.jsonl"
+  -o "<HARNESS>/active-project/wps/WP-XXX.out.md" \
+  - < "<HARNESS>/active-project/wps/WP-XXX.prompt.md" \
+  | tee "<HARNESS>/active-project/wps/WP-XXX.jsonl"
 ```
 
 Capture the session id straight after:
 
 ```bash
 grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' \
-  "<HARNESS>/project/wps/WP-XXX.jsonl" | head -1
+  "<HARNESS>/active-project/wps/WP-XXX.jsonl" | head -1
 ```
 
 Write it into the WP log as `Codex session: <uuid>`. If the grep is empty, fall back to `codex exec resume --last` for the *immediately* following call and record `session: --last (id capture failed)`.
@@ -56,10 +56,10 @@ Set the working directory with a shell `cd` instead, and use **absolute paths** 
 stdin redirect, because the `cd` changes what relative paths mean:
 
 ```bash
-rm -f "<HARNESS>/project/wps/WP-XXX.out.md"          # see the stale-reply trap below
+rm -f "<HARNESS>/active-project/wps/WP-XXX.out.md"          # see the stale-reply trap below
 cd "<REPO_PATH>" && codex exec resume "<SESSION_ID>" \
-  -o "<HARNESS>/project/wps/WP-XXX.out.md" \
-  - < "<HARNESS>/project/wps/WP-XXX.prompt.md"
+  -o "<HARNESS>/active-project/wps/WP-XXX.out.md" \
+  - < "<HARNESS>/active-project/wps/WP-XXX.prompt.md"
 ```
 
 Sandbox mode carries over from the session; override it with `-c sandbox_mode="workspace-write"`
@@ -89,7 +89,7 @@ Every prompt file uses this skeleton. Sections in this order — Codex weights t
 <3-6 lines: what the product is, who uses it, the current phase>
 
 ## Stack and conventions (authoritative)
-<paste the relevant slice of project/PROJECT.md: language, framework, versions, test runner, lint, dir layout, naming, error/logging conventions>
+<paste the relevant slice of active-project/PROJECT.md: language, framework, versions, test runner, lint, dir layout, naming, error/logging conventions>
 
 ## Repo you are working in
 <REPO_PATH> (<frontend|backend>) — branch <branch>

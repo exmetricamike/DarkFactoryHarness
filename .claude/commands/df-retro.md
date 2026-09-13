@@ -5,17 +5,17 @@ argument-hint: [optional: "grades in chat" or nothing]
 
 # /df-retro — turn this project's experience into harness memory
 
-Run this **in the morning, after the user has read `project/MORNING.md`** and graded the decisions.
+Run this **in the morning, after the user has read `active-project/MORNING.md`** and graded the decisions.
 This is the only step that makes the next project cheaper than this one. It edits exactly one file
-outside `project/`: `LESSONS.md`.
+outside `active-project/`: `LESSONS.md`.
 
 The user is present here — unlike the night, asking is allowed and cheap.
 
 ## Step 1 — collect the evidence (read, do not re-derive)
 
 - `LESSONS.md` — the candidates section, and the existing lessons (you may be confirming or contradicting one).
-- `project/DECISIONS.md` — every call made alone, with the `Grade` column the user filled in.
-- `project/BACKLOG.md` — what ended `BLOCKED`, what got split, what was deferred.
+- `active-project/DECISIONS.md` — every call made alone, with the `Grade` column the user filled in.
+- `active-project/BACKLOG.md` — what ended `BLOCKED`, what got split, what was deferred.
 - The `log.md` of any WP that took ≥3 spec rounds, ≥2 fix rounds, or got reverted. **Only those** —
   a smooth WP teaches nothing.
 
@@ -33,7 +33,7 @@ the lesson is written from their verdict, not from your defence of it.
 For each candidate line, each bad grade, and each ≥3-round or reverted WP, ask in order:
 
 1. **Was this project-specific?** A quirk of this stack, this repo, this product → drop it. It is
-   already in `project/`. Do not launder it into a general rule.
+   already in `active-project/`. Do not launder it into a general rule.
 2. **Would the rule have changed the outcome on a project I have never seen?** No → drop it.
 3. **Does an existing lesson already cover it?** Yes → bump `hits`, sharpen the wording if this
    night taught it better, and if the new context is a *different* project shape raise `conf`.

@@ -1,7 +1,7 @@
 # Lessons — what previous nights taught this harness
 
 Cross-project memory. **This file is not project-specific and never leaves the harness repo** —
-it travels to the next project, `project/` does not. Read it at the start of every phase command;
+it travels to the next project, `active-project/` does not. Read it at the start of every phase command;
 it is kept short on purpose.
 
 ## How to write a lesson
@@ -29,7 +29,7 @@ One line, in the phase section it applies to:
 - **Contradicted by experience → rewrite or delete it.** Do not stack a counter-lesson on top of a
   wrong one; there is one current answer per situation.
 - **Graded by the user → that grade wins** over your own reading of the night.
-- Never record here what belongs in `project/` (a decision about this product, a repo quirk,
+- Never record here what belongs in `active-project/` (a decision about this product, a repo quirk,
   a WP follow-up). This file only holds things that will still be true on the next project.
 
 ---

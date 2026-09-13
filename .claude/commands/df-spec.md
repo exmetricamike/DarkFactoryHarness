@@ -6,16 +6,16 @@ argument-hint: WP-XXX
 # /df-spec $ARGUMENTS — author and harden one WP spec
 
 Load the `codex-protocol` skill before the Codex calls.
-Preconditions: the WP exists in `project/BACKLOG.md`, its `Depends` are all `DONE`. Otherwise stop and say why.
+Preconditions: the WP exists in `active-project/BACKLOG.md`, its `Depends` are all `DONE`. Otherwise stop and say why.
 
-Running unattended (inside `/df-run`): every gap you find in the spec is yours to fill. Decide with the `night-shift` tie-breakers — simplest thing that satisfies the outcome — write the decision into the WP spec as if it had always been there, and log it in `project/DECISIONS.md`. A WP spec with an open question in it is an unfinished spec.
+Running unattended (inside `/df-run`): every gap you find in the spec is yours to fill. Decide with the `night-shift` tie-breakers — simplest thing that satisfies the outcome — write the decision into the WP spec as if it had always been there, and log it in `active-project/DECISIONS.md`. A WP spec with an open question in it is an unfinished spec.
 
 ## Step 1 — ground yourself in the current code
 
 Read, at HEAD, in the target repo(s): the modules this WP will touch, the nearest existing analogue (a sibling feature built the same way), the test patterns, and `git -C <repo> log --oneline -10`.
 The spec must describe *deltas to the code that exists now*, not to the code you imagined at planning time.
 
-## Step 2 — write `project/wps/WP-XXX.md`
+## Step 2 — write `active-project/wps/WP-XXX.md`
 
 ```markdown
 # WP-XXX: <title>
@@ -66,7 +66,7 @@ Quality bar before you hand it over: every noun exists (table, field, route, com
 
 **No WP is implemented on an unreviewed spec.** Not by Codex, not by you. Codex is a senior engineer reading the real repo with fresh eyes; you wrote the spec and are attached to it. Its review is the cheapest bug-prevention in the whole pipeline — a spec fix costs one round, the same mistake found after implementation costs three.
 
-Build `project/wps/WP-XXX.prompt.md` using the envelope + **REVIEW block** from `codex-protocol`, inlining the whole spec. First round creates the session; capture the session id into `project/wps/WP-XXX.log.md` and BACKLOG.
+Build `active-project/wps/WP-XXX.prompt.md` using the envelope + **REVIEW block** from `codex-protocol`, inlining the whole spec. First round creates the session; capture the session id into `active-project/wps/WP-XXX.log.md` and BACKLOG.
 
 Ask for real critique, not a rubber stamp: what is ambiguous, what contradicts the code, what is missing that would block implementation, what this will break elsewhere. **Invite disagreement explicitly** — a review that returns READY on the first pass with nothing to say is a review you should push back on once ("what would you have done differently?") before trusting it.
 
@@ -88,14 +88,14 @@ Round n+1 prompt = the amended spec + a short resolutions list: `1. accepted, sp
 
 **Loop until `VERDICT: READY`.** Rounds are cheap; rework is not.
 
-After round 3 without READY, do not keep circling and do not bulldoze: pick the smallest spec that Codex has no blockers against — cut the contested scope into a follow-up WP — and send that reduced spec for a confirming pass. A smaller reviewed WP beats a larger unreviewed one. Log the split in `project/DECISIONS.md`.
+After round 3 without READY, do not keep circling and do not bulldoze: pick the smallest spec that Codex has no blockers against — cut the contested scope into a follow-up WP — and send that reduced spec for a confirming pass. A smaller reviewed WP beats a larger unreviewed one. Log the split in `active-project/DECISIONS.md`.
 
 ## Step 4 — freeze
 
 Only reachable with a `VERDICT: READY` on the current text of the spec (or a logged descope that Codex confirmed). If you are here without one, go back to Step 3.
 
 1. Set `State: FROZEN` in `WP-XXX.md`, WP state `SPECCED` in BACKLOG. Record the READY round number next to it.
-2. Append to `project/wps/WP-XXX.log.md`: session id, per-round issue → resolution → reason, anything descoped.
+2. Append to `active-project/wps/WP-XXX.log.md`: session id, per-round issue → resolution → reason, anything descoped.
 3. Report: outcome sentence, what Codex caught and how you fixed it, what you declined and why, `Next: /df-build WP-XXX`.
 
 If Codex catching things makes a WP take four rounds, that is the system working. The rounds are the point.

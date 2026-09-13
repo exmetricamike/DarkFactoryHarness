@@ -21,7 +21,7 @@ Trigger the pause on any of these, whichever comes first:
 2. The user runs `/df-pause`, or tells you the limit is near.
 3. The user pastes `/usage` output — read the remaining % and the reset time from it.
 
-Independently: **checkpoint after every WP regardless**. `project/RESUME.md` costs one file write and makes any unannounced cutoff lose at most one work package. A cheap checkpoint everywhere beats a clever threshold nowhere.
+Independently: **checkpoint after every WP regardless**. `active-project/RESUME.md` costs one file write and makes any unannounced cutoff lose at most one work package. A cheap checkpoint everywhere beats a clever threshold nowhere.
 
 ## On trigger — do this in order, and keep it short
 
@@ -31,7 +31,7 @@ You may have very little budget left. Do not start new work, do not run Codex, d
    - Codex is mid-implementation → let a call that is already in flight finish, then stop. Never abandon a half-written call you cannot verify.
    - You already verified and passed → **commit first**, then checkpoint. Uncommitted verified work is the one thing you cannot reconstruct.
    - Verification failed mid-way → do not commit; record the failure in the checkpoint and leave the tree dirty, noting exactly which files.
-2. **Write `project/RESUME.md`** (format below). This is the only artifact guaranteed to survive.
+2. **Write `active-project/RESUME.md`** (format below). This is the only artifact guaranteed to survive.
 3. **Schedule the wake-up 4 hours out** (see below). Do not ask the user for a reset time — assume they are asleep. Four hours is the window; it needs no confirmation.
 4. **Report and stop.** One block: what is done, what is mid-flight, when the resume fires, and `/df-resume` as the manual fallback.
 
@@ -72,7 +72,7 @@ Backlog: <n>/<total> DONE. In flight: <WP-XXX, state> | none
 
 Two mechanisms, use **both** — they fail in different ways.
 
-1. **Durable**: `project/RESUME.md` on disk. Survives everything. This is the real one.
+1. **Durable**: `active-project/RESUME.md` on disk. Survives everything. This is the real one.
 2. **Best-effort**: a one-shot cron in this session.
 
 ```
@@ -86,7 +86,7 @@ Overnight this is the mechanism that keeps the factory alive: the terminal sits 
 
 State it once in your report, without hedging it into noise:
 
-> Resume scheduled for <time>. It fires only if this terminal stays open; `project/RESUME.md` holds the state either way.
+> Resume scheduled for <time>. It fires only if this terminal stays open; `active-project/RESUME.md` holds the state either way.
 
 Never claim the resume is guaranteed. Never register an OS-level scheduled task unless the user asks for it.
 
@@ -100,7 +100,7 @@ A `codex exec` call fails, or its output contains a quota signal. Match case-ins
 
 `usage limit` · `rate limit` · `quota` · `429` · `too many requests` · `insufficient` · `try again (after|in)` · `resets (at|in)`
 
-Distinguish it from a normal failure: a quota failure produces no code changes and usually fails within seconds. Confirm with **one** retry after ~60s. If it fails the same way, declare Codex down; log it in `project/RESUME.md` (`Reason: codex-down`) and in the WP log with the exact message and any reset time you can parse.
+Distinguish it from a normal failure: a quota failure produces no code changes and usually fails within seconds. Confirm with **one** retry after ~60s. If it fails the same way, declare Codex down; log it in `active-project/RESUME.md` (`Reason: codex-down`) and in the WP log with the exact message and any reset time you can parse.
 
 If the failure lands **mid-implementation** (files already changed), first run `git -C <repo> status --short` and `git -C <repo> diff` and record what exists. Do not commit a half-finished WP. Note in the WP log which files are partial, so the resumed Codex session knows what it left behind.
 
@@ -108,8 +108,8 @@ If the failure lands **mid-implementation** (files already changed), first run `
 
 Work down it, top first. Never skip ahead to code because the queue is boring.
 
-1. **Spec ahead.** Write `project/wps/WP-XXX.md` for every remaining WP whose dependencies are DONE or will be. Mark each `State: SPECCED-UNREVIEWED` and add `Pending: Codex spec review` to its backlog row. **These are drafts, not frozen specs** — the review gate is owed and unpaid, so nothing gets implemented from them while Codex is down except what clears the trivial gate below. Review your own drafts against the code as hard as you can in the meantime; it is not a substitute, it is what you have.
-2. **Write the acceptance checks.** For each unreviewed spec, write your independent check into `project/checks/WP-XXX.*`. Outside the repos, always.
+1. **Spec ahead.** Write `active-project/wps/WP-XXX.md` for every remaining WP whose dependencies are DONE or will be. Mark each `State: SPECCED-UNREVIEWED` and add `Pending: Codex spec review` to its backlog row. **These are drafts, not frozen specs** — the review gate is owed and unpaid, so nothing gets implemented from them while Codex is down except what clears the trivial gate below. Review your own drafts against the code as hard as you can in the meantime; it is not a substitute, it is what you have.
+2. **Write the acceptance checks.** For each unreviewed spec, write your independent check into `active-project/checks/WP-XXX.*`. Outside the repos, always.
 3. **Implement trivial WPs only.** See the gate below.
 4. **Nothing left → stop.** Write RESUME.md, schedule a retry, report. Do not invent work to look busy.
 
@@ -137,7 +137,7 @@ If it passes: implement it, run the repo's own tests and lint, run your independ
 WP-XXX: <title>
 
 <what and why>
-Spec: project/wps/WP-XXX.md
+Spec: active-project/wps/WP-XXX.md
 Tests: <command> -> <result>
 Implemented-by: Claude (Codex unavailable — pending Codex review)
 ```

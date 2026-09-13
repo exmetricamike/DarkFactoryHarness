@@ -1,18 +1,18 @@
 ---
-description: Phase 1 - ingest everything in project/intake, analyze the provided repos to infer the stack, interrogate the user until the spec is actionable
+description: Phase 1 - ingest everything in active-project/intake, analyze the provided repos to infer the stack, interrogate the user until the spec is actionable
 argument-hint: [frontend repo path] [backend repo path]
 ---
 
 # /df-intake — make the spec actionable
 
-Source material: **everything in `project/intake/`**. Repos: from `$ARGUMENTS`, or ask if not given.
+Source material: **everything in `active-project/intake/`**. Repos: from `$ARGUMENTS`, or ask if not given.
 
-Goal: produce `project/PROJECT.md` (stack truth) and `project/SPEC.md` (product truth, zero OPEN items).
+Goal: produce `active-project/PROJECT.md` (stack truth) and `active-project/SPEC.md` (product truth, zero OPEN items).
 Do not decompose into work packages here. That is `/df-plan`.
 
 ## Step 1 — ingest the intake folder, all of it
 
-`ls -R project/intake/`. Read **every** file before you form an opinion — the requirement that matters is usually in the one you were about to skip.
+`ls -R active-project/intake/`. Read **every** file before you form an opinion — the requirement that matters is usually in the one you were about to skip.
 
 - **Text/Markdown** → read fully.
 - **PDF** → `Read` with a page range; long documents in 20-page chunks.
@@ -25,8 +25,8 @@ Do not decompose into work packages here. That is `/df-plan`.
 Then reconcile:
 
 1. **Conflicts between documents** — if the user did not say which wins, prefer the most recent, and log the conflict as a decision. Never silently merge two contradictory requirements into a plausible-sounding third one.
-2. **Never edit anything in `project/intake/`.** It is the source of record.
-3. Write `project/SPEC.md` as a consolidated restatement — the user's words and intent preserved, deduplicated, with `[src: <filename>]` markers on anything non-obvious so a claim can be traced back.
+2. **Never edit anything in `active-project/intake/`.** It is the source of record.
+3. Write `active-project/SPEC.md` as a consolidated restatement — the user's words and intent preserved, deduplicated, with `[src: <filename>]` markers on anything non-obvious so a claim can be traced back.
 4. List what the material does and does not answer. That list drives Step 3.
 
 ## Step 2 — infer the stack from the repos (do not ask what the code can tell you)
@@ -40,7 +40,7 @@ For **each** repo, read — do not guess:
 - infra → Dockerfile, compose, CI workflows, `.env.example`, migrations dir
 - git: `git -C <repo> log --oneline -15`, current branch, `git status --short`
 
-Write `project/PROJECT.md`:
+Write `active-project/PROJECT.md`:
 
 ```markdown
 # Project: <name>
@@ -94,16 +94,16 @@ Score the spec against this checklist. Every unanswered item becomes an OPEN ite
 Ask with `AskUserQuestion`, **max 4 questions per call**, highest-leverage first (things that change the data model or the architecture come before things that change a screen).
 Rules:
 - Always offer a concrete recommended default as the first option, marked `(Recommended)`, inferred from the repos and the domain. Cheap for the user to say "yes".
-- Never ask what the repos already answered. **Never ask what a document or mockup in `project/intake/` already answered** — asking about something they handed you reads as not having read it.
+- Never ask what the repos already answered. **Never ask what a document or mockup in `active-project/intake/` already answered** — asking about something they handed you reads as not having read it.
 - Never ask two questions that collapse into one decision.
 - Keep looping until every checklist item is Resolved or the user marks it Deferred.
 - Batch related questions; don't drip one at a time.
 
-After each answer round, immediately fold the answers into `project/SPEC.md` — never keep decisions only in the chat.
+After each answer round, immediately fold the answers into `active-project/SPEC.md` — never keep decisions only in the chat.
 
 ## Step 5 — write the refined spec
 
-`project/SPEC.md` final shape:
+`active-project/SPEC.md` final shape:
 
 ```markdown
 # <Product> — Specification

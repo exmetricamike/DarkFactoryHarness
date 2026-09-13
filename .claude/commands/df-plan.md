@@ -4,7 +4,7 @@ description: Phase 2 - decompose the actionable spec into ordered work packages 
 
 # /df-plan — work-package decomposition
 
-Preconditions: `project/SPEC.md` has zero OPEN items and `project/PROJECT.md` exists. If not, stop and run `/df-intake`.
+Preconditions: `active-project/SPEC.md` has zero OPEN items and `active-project/PROJECT.md` exists. If not, stop and run `/df-intake`.
 
 ## Sizing rule
 
@@ -25,7 +25,7 @@ If it touches fewer than 2 files, merge it into a neighbour — coordination ove
 
 `WP-001`, `WP-002`, … in intended execution order. Never renumber later; new work gets the next free number regardless of where it belongs logically.
 
-## Write `project/BACKLOG.md`
+## Write `active-project/BACKLOG.md`
 
 ```markdown
 # Backlog
@@ -51,7 +51,7 @@ Each row's **Notes** column holds one line: the user-visible outcome of that WP.
 ## Then
 
 1. Present the plan to the user as a compact table plus milestone summary, and flag any WP you are unsure about.
-2. Ask for approval to proceed (`AskUserQuestion`: approve / reorder / split-merge specific WPs) — **only if the user is present**. If this ran from `/df-run` or any unattended path, skip the approval, note the plan in `project/DECISIONS.md`, and start building.
+2. Ask for approval to proceed (`AskUserQuestion`: approve / reorder / split-merge specific WPs) — **only if the user is present**. If this ran from `/df-run` or any unattended path, skip the approval, note the plan in `active-project/DECISIONS.md`, and start building.
 3. On approval: `Next: /df-spec WP-001` — or `/df-run` for the autonomous loop.
 
 The plan is a starting order, not a contract. Overnight you may reorder, split, or merge WPs to keep the line moving — log it and update the backlog.
