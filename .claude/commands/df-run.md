@@ -20,6 +20,7 @@ The user is away, probably asleep, and will read the results in the morning. You
 
 ```
 loop:
+    re-read .claude/commands/df-run.md         <- the protocol; your memory is not
     re-read active-project/BACKLOG.md          <- the state; your memory is not
     pick the lowest-numbered WP with state TODO/SPECCED whose Depends are all DONE
     none available?
@@ -47,12 +48,15 @@ A bare "continue" from the user invokes nothing — no command file is read, no 
 survives it only while this protocol is still in your context, and it degrades silently when that
 context has been summarized: the work looks like it is continuing while the rules quietly thin out.
 
-Your memory is not the state, and it is not the protocol either. Before each WP, self-check: can you
-state the loop's halt conditions, the per-WP report block, and which profiles are bound to `reviewer`
-and `implementer` — from context, without looking? Any answer fuzzy, the conversation summarized, or a
-fresh session → re-read `.claude/commands/df-run.md`, `active-project/BACKLOG.md` and the `night-shift`
-skill before starting the next WP. Two file reads, once. The alternative is running an abbreviated
-protocol for the rest of the night with nobody awake to notice.
+Your memory is not the state, and it is not the protocol either. So the loop re-reads this file at the
+top of **every** iteration, unconditionally — not when you suspect your context has thinned, because a
+model running on a thinned-out protocol is exactly the one that does not suspect it. There is no
+self-check to fail and no judgment call to get wrong: one file read per work package, against a package
+that costs minutes of backend time. Pay it every time.
+
+Re-reading this file also re-issues its own first instruction — load the `night-shift` skill. Follow
+that as written rather than assuming the skill is still fresh in context; the reload restores the
+decision protocol along with the loop.
 
 Coming back to a checkpoint (`active-project/RESUME.md` with a reason other than `none`) → run
 `/df-resume` instead; it reconciles the checkpoint against the repos and re-enters this loop itself.

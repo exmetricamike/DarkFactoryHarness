@@ -155,6 +155,8 @@ Publish it as an Artifact as well if that tool is available, and give the user t
 You are spending a finite budget while nobody watches. Do not waste it.
 
 - Do not re-read files you already read this session; do not re-verify a WP you already verified.
+  One deliberate exception: `.claude/commands/df-run.md` is re-read at the top of every loop iteration.
+  That is not waste — it is what keeps a summarized context from quietly running a thinner protocol.
 - Do not re-litigate a decision already in `DECISIONS.md`.
 - Prefer one precise backend round over three vague ones: a FIX prompt with exact failing output beats "it doesn't work".
 - Do not burn rounds polishing a WP that already meets its acceptance criteria. Meets spec = done.
