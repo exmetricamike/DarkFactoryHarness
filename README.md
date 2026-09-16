@@ -41,6 +41,8 @@ A stalled pipeline is treated as the worst possible outcome. A blocked package, 
 
 Leave the terminal open. That's what lets the credit-pause wake-up fire.
 
+**To pick the loop back up, type `/df-run` again** — or `/df-resume` if it stopped at a checkpoint — rather than "continue". `/df-run` re-reads the backlog and takes the next unfinished package, so re-running it is always safe. A bare "continue" is just a message: it loads no command and no rules, and in a fresh terminal there is nothing for it to continue from.
+
 ## Running out of credit
 
 **Claude runs low.** Claude cannot read its own usage — `/usage` is a screen only you can see — so it goes by Claude Code's approaching-limit warnings. On one of those (or on `/df-pause`), it commits anything already verified, writes `active-project/RESUME.md`, schedules a wake-up **4 hours out**, and stops. No questions asked; you're asleep.

@@ -37,6 +37,26 @@ on exit:
 
 Follow those command files literally. A long night is not a licence to run an abbreviated version of the protocol — that is how 3am work becomes morning rework.
 
+## Re-entry — after a compaction, a new session, or a bare "continue"
+
+**This command is idempotent.** It re-reads the backlog and takes the lowest-numbered runnable WP, so
+re-entering `/df-run` is always safe and always cheaper than guessing. It is the correct way to resume
+the loop.
+
+A bare "continue" from the user invokes nothing — no command file is read, no skill is loaded. The loop
+survives it only while this protocol is still in your context, and it degrades silently when that
+context has been summarized: the work looks like it is continuing while the rules quietly thin out.
+
+Your memory is not the state, and it is not the protocol either. Before each WP, self-check: can you
+state the loop's halt conditions, the per-WP report block, and which profiles are bound to `reviewer`
+and `implementer` — from context, without looking? Any answer fuzzy, the conversation summarized, or a
+fresh session → re-read `.claude/commands/df-run.md`, `active-project/BACKLOG.md` and the `night-shift`
+skill before starting the next WP. Two file reads, once. The alternative is running an abbreviated
+protocol for the rest of the night with nobody awake to notice.
+
+Coming back to a checkpoint (`active-project/RESUME.md` with a reason other than `none`) → run
+`/df-resume` instead; it reconciles the checkpoint against the repos and re-enters this loop itself.
+
 ## Credit events during the loop
 
 Load the `continuity` skill on either signal.
