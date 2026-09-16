@@ -21,6 +21,9 @@ profile, that is one doc, one session, and the run behaves exactly as a single-b
 | `profiles.<id>.adapter` | which adapter doc governs the mechanics |
 | `profiles.<id>.label` | human line for reports and the morning report |
 | `profiles.<id>.invoke` | adapter-specific launch parameters (model, provider, sandbox, flags) |
+| `profiles.<id>.verified` | has it passed `/df-implementer --smoke` on this machine? |
+| `profiles.<id>.env_file` | dotenv file to source before the call, or `null` |
+| `profiles.<id>.env_required` | env vars that must be non-empty after sourcing it |
 | `profiles.<id>.capabilities` | what the backend can do — the protocol branches on these |
 | `profiles.<id>.limits` | round limits, call timeout, prompt budget |
 | `profiles.<id>.preflight` | cheap reachability check + the hint to print when it fails |
@@ -33,6 +36,7 @@ profile, that is one doc, one session, and the run behaves exactly as a single-b
 | `edits_files` | not send IMPLEMENT blocks to it — it can only review |
 | `runs_commands` | not ask it for a `TESTS:` line; the coordinator runs everything |
 | `sessions` | re-inline prior rounds into every prompt instead of resuming |
+| `sandboxed` | treat the prompt's "stay inside this repo" paragraph as the *only* control, and check the other repos' `git status` before committing |
 | `network` | tell it in every prompt that dependencies are pre-installed and it must not fetch |
 | `context_tokens` | (number) size WPs and trim prompt sections to fit |
 
@@ -62,11 +66,21 @@ is stated as *cannot*, never left out — the protocol needs the negative as muc
 Plus a `verified-against:` line naming the exact tool version the commands were checked on.
 On a version mismatch, re-check the tool's help output before trusting the commands.
 
+## Secrets
+
+Keys live in `.env` at the harness root, git-ignored, with `.env.example` as the tracked template.
+A profile names the file in `env_file` and its variables in `env_required`; the adapter sources it
+(`set -a; . ./.env; set +a`) before the call and `/df-implementer --smoke` fails when a required
+variable is empty. A key never appears in `harness.config.json`, a prompt file, a WP log, a commit,
+or a report — and a local profile needs none at all.
+
 ## Adding an adapter
 
-1. Write `.claude/docs/adapters/<name>.md` answering all seven points.
-2. Add a profile to `harness.config.json` using it, with honest `capabilities`.
-3. Preflight it (`/df-implementer --smoke`) before any unattended run.
+1. Write `.claude/docs/adapters/<name>.md` answering all seven points. Where you could not verify a
+   command, say so in the doc and mark what must be confirmed on the first smoke run. An adapter doc
+   that guesses silently is worse than one that admits the gap — the night will not check.
+2. Add a profile to `harness.config.json` using it, with honest `capabilities` and `verified: false`.
+3. Preflight it (`/df-implementer --smoke`) before any unattended run, then set `verified: true`.
 
 Nothing else in the harness changes. If a new adapter needs a change to a phase command, the
 contract is leaking — fix the contract instead.
@@ -74,7 +88,7 @@ contract is leaking — fix the contract instead.
 ## Example: a second profile on the same adapter
 
 ```json
-"lmstudio-qwen3-coder": {
+"codex-lmstudio": {
   "adapter": "codex",
   "label": "Qwen3-Coder 30B via LM Studio, driven by the Codex agent loop",
   "invoke": { "oss": true, "local_provider": "lmstudio", "model": "qwen/qwen3-coder-30b",

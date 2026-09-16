@@ -7,7 +7,15 @@
       "Bash(git -C * diff:*)",
       "Bash(git -C * log:*)",
       "Bash(git -C * show:*)",
-      "Bash(git -C * branch:*)"
+      "Bash(git -C * branch:*)",
+      "Bash(opencode run:*)",
+      "Bash(opencode --version)",
+      "Bash(opencode auth:*)",
+      "Bash(curl -sf http://127.0.0.1:*)",
+      "Bash(curl -sf http://localhost:*)",
+      "Bash(lms:*)",
+      "Bash(ollama list)",
+      "Bash(ollama serve)"
     ]
   }
 }

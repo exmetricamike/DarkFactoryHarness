@@ -7,7 +7,7 @@ Which backend does the building is a config parameter, not a hard-wired assumpti
 
 ## Setup
 
-1. Have the backend from `harness.config.json` reachable and logged in. Out of the box that is `codex` on PATH (`codex --version`). Prove it with `/df-implementer --smoke`.
+1. Have the backend from `harness.config.json` reachable and logged in. Out of the box that is `codex` on PATH (`codex --version`); for a local model or OpenRouter see [Choosing the backend](#choosing-the-backend). Prove it with `/df-implementer --smoke` before you go to bed.
 2. Put your spec document, mockups, screenshots and any supporting material into `active-project/intake/` — see the README in there. Everything in that folder gets read.
 3. Have your frontend and backend repos cloned locally, working trees clean.
 4. For UI testing, have the Claude in Chrome extension connected and permitted for `localhost`.
@@ -86,7 +86,8 @@ If you start a new project by copying this harness, copy `LESSONS.md` with it. T
 - `LESSONS.md` — what the harness learned on this and every previous project
 - `active-project/wps/WP-XXX.log.md` — which backend built it, what it said, what was accepted or rejected, and why
 - `projects-archive/` — closed-out projects, moved there by `/archive-project`; never read during a run
-- `harness.config.json` — which backend plays reviewer and implementer, and with what limits
+- `harness.config.json` — which backend plays reviewer and implementer, and with what limits; every field is documented in the file
+- `.env` — keys for the backends that need one (git-ignored; copy `.env.example`)
 
 ## Choosing the backend
 
@@ -96,22 +97,50 @@ exactly like a single-backend run; point them at different ones to see which mod
 you rounds.
 
 ```
-/df-implementer                      # who's on tonight
-/df-implementer --smoke              # prove they answer, before you go to bed
-/df-implementer lmstudio-qwen3-coder # switch both roles
-/df-implementer --reviewer codex-cloud --implementer lmstudio-qwen3-coder
+/df-implementer                    # who's on tonight
+/df-implementer --smoke            # prove they answer, before you go to bed
+/df-implementer codex-lmstudio     # switch both roles
+/df-implementer --reviewer codex-cloud --implementer opencode-lmstudio
 ```
 
 A **profile** is one backend: an adapter (how to talk to it), a model, capability flags, and its own
 round limits and timeouts. An **adapter** is documented once in `.claude/docs/adapters/<name>.md` and
-reused by every profile that speaks the same way — so running a local model through LM Studio or
-Ollama is a new profile on the existing `codex` adapter, not new plumbing: same agent loop, same
-sandbox, same sessions, different model underneath. That keeps the model the only variable in the
-comparison. A genuinely different tool is a new adapter doc plus a profile.
+reused by every profile that speaks the same way. Every field is explained inside
+`harness.config.json` itself, under `_fields`.
 
-Profiles carry honest limits. A 32k-context local model gets smaller work packages, fewer review
-rounds and a longer timeout than a hosted frontier model, and the harness reads those numbers off the
-profile instead of assuming.
+### What ships
+
+| Profile | What it is | Needs |
+|---|---|---|
+| `codex-cloud` | Codex CLI, hosted model. The default, and the control to compare against. | `codex login` |
+| `codex-lmstudio` / `codex-ollama` | A local model driven by the **Codex** agent loop (`--oss`). Same sandbox, same sessions — only the model changes. | LM Studio or Ollama running, model loaded |
+| `opencode-lmstudio` / `opencode-ollama` | The same local model driven by **OpenCode** instead. | OpenCode installed, server running |
+| `opencode-openrouter` | Any OpenRouter model, no local hardware. | `OPENROUTER_API_KEY` in `.env` |
+| `codex-openrouter` | OpenRouter through Codex. Marked unverified: Codex documents only the `responses` wire protocol and OpenRouter speaks chat-completions, so it may not work at all. | as above, plus a `model_providers` entry in `~/.codex/config.toml` |
+
+Only `codex-cloud` is marked `verified` — the rest have not been smoke-tested on this machine, and
+`/df-implementer --smoke` is what flips that flag.
+
+Running the *same* local model under both adapters is the most useful comparison here: it separates
+what the model cannot do from what the tooling around it cannot do.
+
+### Keys
+
+Secrets live in `.env` at the root, git-ignored, with `.env.example` as the template. A profile
+declares what it needs (`env_required`) and the smoke test fails loudly when it is missing. Local
+profiles need no key at all, and nothing leaves the machine.
+
+### Two things to know before pointing it at a local model
+
+**Honest limits beat optimistic ones.** A 32k-context model gets smaller work packages, fewer review
+rounds and a much longer timeout, and the harness reads those numbers off the profile rather than
+assuming. Set `context_tokens` to what the model is actually *served* with, not its spec sheet.
+
+**OpenCode has no workspace sandbox.** Codex confines writes to the repo it was pointed at; OpenCode
+runs with your permissions, and `--auto` approves its own actions. Those profiles are marked
+`sandboxed: false`, which keeps the "stay inside this repo" instruction in every prompt and makes the
+diff review the real control. Worth a thought before running one unattended on a machine that holds
+other people's work.
 
 ## Rules the harness enforces
 

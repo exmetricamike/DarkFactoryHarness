@@ -7,8 +7,12 @@ by any phase command.
 
 ```
 harness.config.json                 which backend plays reviewer and implementer, and with what limits.
-                                    Tracked, machine-level, survives projects. Schema + adapter docs:
-                                    .claude/docs/adapters/
+                                    Tracked, machine-level, survives projects. Every field is documented
+                                    in the file itself; schema + adapter docs: .claude/docs/adapters/
+.env                                keys for backends that need one. NEVER committed, never quoted in a
+                                    prompt, log or report. Template: .env.example (tracked).
+.claude/adapters/<adapter>/         config files the adapter hands to its tool (e.g. OpenCode provider
+                                    definitions). Tracked; contains no secrets, only {env:VAR} references.
 LESSONS.md                          cross-project memory: what previous nights taught. Read every phase;
                                     written only by /df-retro. Never contains project identity.
 active-project/intake/              USER-SUPPLIED source material: spec docs, mockups, data samples

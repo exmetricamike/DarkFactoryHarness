@@ -1,6 +1,49 @@
 {
   "version": 1,
-  "_doc": "Which backend plays which role. Adapter mechanics: .claude/docs/adapters/<adapter>.md. Schema: .claude/docs/adapters/_contract.md.",
+
+  "_doc": [
+    "WHICH BACKEND DOES THE WORK. The coordinator is whichever model runs the /df-* commands;",
+    "the reviewer and the implementer are backends bound here, and they need not be the same one.",
+    "",
+    "Keys beginning with _ are documentation for the human and for the coordinator reading this file.",
+    "They are never parameters. Everything else is.",
+    "",
+    "Read this file at the start of every phase command: roles.<role> -> profiles.<id> -> adapter,",
+    "then load .claude/docs/adapters/<adapter>.md and nothing else. Schema and the adapter contract:",
+    ".claude/docs/adapters/_contract.md. Switch roles with /df-implementer, never by hand mid-run."
+  ],
+
+  "_fields": {
+    "roles": "Which profile plays each role. Same id twice = one backend does everything, exactly like a single-backend run.",
+    "profiles.<id>.adapter": "Which adapter doc governs the mechanics: 'codex' or 'opencode'. The adapter is HOW to talk to it; the profile is WHICH model, with what limits.",
+    "profiles.<id>.label": "Human line, shown in reports and the morning report.",
+    "profiles.<id>.verified": "Has this profile passed /df-implementer --smoke on THIS machine? A profile that has never passed one is not usable in an unattended run. Set it true only after a smoke test actually returned a reply.",
+    "profiles.<id>.invoke": "Adapter-specific launch parameters. See the adapter doc for how each key becomes a flag.",
+    "profiles.<id>.env_file": "Path to a dotenv file to source before the call, or null. Secrets live there, never in this file.",
+    "profiles.<id>.env_required": "Env vars that must be non-empty after sourcing env_file. Missing one = preflight failure, not a mysterious 401 at 3am.",
+    "profiles.<id>.capabilities": "What the backend can actually do. The protocol branches on these — an honest 'false' here is worth more than an optimistic 'true'.",
+    "profiles.<id>.capabilities.edits_files": "Can it write to the repo itself? False = it can only review; never send it an IMPLEMENT block.",
+    "profiles.<id>.capabilities.runs_commands": "Can it run tests and lint? False = drop the TESTS: line from the required output and run everything yourself. You re-run them either way.",
+    "profiles.<id>.capabilities.sessions": "Does context carry across calls? False = re-inline the spec and the prior round into every prompt.",
+    "profiles.<id>.capabilities.sandboxed": "Are its writes confined to the target repo by the tool itself? False = nothing stops it touching the rest of the disk, so the prompt must forbid it and the diff review is the only net. Weigh this before pointing a backend at a machine with other work on it.",
+    "profiles.<id>.capabilities.network": "Does it have network access? False = installs fail, so provision the environment yourself first and put the no-network block in every IMPLEMENT prompt.",
+    "profiles.<id>.capabilities.context_tokens": "Usable context window. Drives work-package sizing in /df-plan and the prompt budget below. Set it to what the model is ACTUALLY loaded with, not its theoretical maximum — a 256k-capable model served at 32k is a 32k model.",
+    "profiles.<id>.limits.spec_review_rounds": "Review rounds before /df-spec cuts the WP down to whatever the reviewer has no blockers against. Lower it for a weak reviewer: three rounds of vague objections is worse than one round and a smaller WP.",
+    "profiles.<id>.limits.fix_rounds": "Verification fix rounds before the WP is handed to the fallback, or blocked.",
+    "profiles.<id>.limits.call_timeout_ms": "Bash timeout for one call. Local models are slower than they look: a 30B model on a laptop can take 20+ minutes on a real work package.",
+    "profiles.<id>.limits.max_prompt_chars": "Prompt budget, or null for none. A prompt over budget must be trimmed (drop the 'Already built' detail first, then narrow the PROJECT.md slice) or the WP split. Keep it near a third of the window in characters — the agent needs the rest of the context for the files it reads and the commands it runs.",
+    "profiles.<id>.preflight.check": "Cheap shell command proving the backend is reachable BEFORE the night depends on it. Run by /df-implementer --smoke.",
+    "profiles.<id>.preflight.hint": "What to tell the human when that check fails. For a local model this is usually 'the server is not running' or 'the model is not loaded'.",
+    "profiles.<id>.fallback": "Profile id that takes over after fix_rounds are exhausted, or null for none. Default is null on purpose: a fallback quietly finishing the work is exactly what ruins a backend comparison. Turn it on for production nights, off for experiments."
+  },
+
+  "_env": [
+    "Secrets live in .env at the harness root (git-ignored; .env.example is the tracked template).",
+    "A profile naming an env_file expects the call to be made with it sourced:",
+    "    set -a; . ./.env; set +a",
+    "Never paste a key into this file, a prompt, a WP log or a commit. Local backends need no key at all —",
+    "that is a real advantage of running a model on your own machine, not an afterthought."
+  ],
 
   "roles": {
     "reviewer": "codex-cloud",
@@ -8,19 +51,27 @@
   },
 
   "profiles": {
+
     "codex-cloud": {
       "adapter": "codex",
       "label": "Codex CLI, hosted model, ChatGPT auth",
+      "_doc": "The default and the only profile proven on this machine. Use it as the control when measuring anything else.",
+      "verified": true,
       "invoke": {
         "model": null,
         "sandbox": "workspace-write",
         "approve_for_me": true,
+        "oss": false,
+        "local_provider": null,
         "config_overrides": []
       },
+      "env_file": null,
+      "env_required": [],
       "capabilities": {
         "edits_files": true,
         "runs_commands": true,
         "sessions": true,
+        "sandboxed": true,
         "network": false,
         "context_tokens": 200000
       },
@@ -33,6 +84,225 @@
       "preflight": {
         "check": "codex --version",
         "hint": "codex login  — then re-run the smoke call"
+      },
+      "fallback": null
+    },
+
+    "codex-lmstudio": {
+      "adapter": "codex",
+      "label": "Local model via LM Studio, driven by the Codex agent loop",
+      "_doc": "Same agent loop, sandbox and sessions as codex-cloud; only the model changes. That is what makes it a clean experiment. Set invoke.model to the exact id `lms ls` prints, and context_tokens to the context length you loaded it with.",
+      "verified": false,
+      "invoke": {
+        "model": "qwen/qwen3-coder-30b",
+        "sandbox": "workspace-write",
+        "approve_for_me": true,
+        "oss": true,
+        "local_provider": "lmstudio",
+        "config_overrides": []
+      },
+      "env_file": null,
+      "env_required": [],
+      "capabilities": {
+        "edits_files": true,
+        "runs_commands": true,
+        "sessions": true,
+        "sandboxed": true,
+        "network": false,
+        "context_tokens": 32768
+      },
+      "limits": {
+        "spec_review_rounds": 2,
+        "fix_rounds": 2,
+        "call_timeout_ms": 2400000,
+        "max_prompt_chars": 40000
+      },
+      "preflight": {
+        "check": "curl -sf http://127.0.0.1:1234/v1/models",
+        "hint": "lms server start, then lms load <model-id> — check the id with lms ls"
+      },
+      "fallback": null
+    },
+
+    "codex-ollama": {
+      "adapter": "codex",
+      "label": "Local model via Ollama, driven by the Codex agent loop",
+      "_doc": "As codex-lmstudio, against Ollama's OpenAI-compatible endpoint. invoke.model must match `ollama list` exactly, tag included.",
+      "verified": false,
+      "invoke": {
+        "model": "qwen3-coder:30b",
+        "sandbox": "workspace-write",
+        "approve_for_me": true,
+        "oss": true,
+        "local_provider": "ollama",
+        "config_overrides": []
+      },
+      "env_file": null,
+      "env_required": [],
+      "capabilities": {
+        "edits_files": true,
+        "runs_commands": true,
+        "sessions": true,
+        "sandboxed": true,
+        "network": false,
+        "context_tokens": 32768
+      },
+      "limits": {
+        "spec_review_rounds": 2,
+        "fix_rounds": 2,
+        "call_timeout_ms": 2400000,
+        "max_prompt_chars": 40000
+      },
+      "preflight": {
+        "check": "curl -sf http://127.0.0.1:11434/v1/models",
+        "hint": "ollama serve, then ollama pull <model> — check what is installed with ollama list"
+      },
+      "fallback": null
+    },
+
+    "codex-openrouter": {
+      "adapter": "codex",
+      "label": "OpenRouter model, driven by the Codex agent loop  [UNVERIFIED]",
+      "_doc": [
+        "Reaches OpenRouter through a custom [model_providers.openrouter] entry in ~/.codex/config.toml;",
+        "the codex adapter doc, section 8, has the exact TOML. Unverified for a specific reason: OpenAI's",
+        "own config reference documents wire_api = 'responses' only, and OpenRouter serves the",
+        "chat-completions API. It may simply fail. Smoke-test it before trusting it, and if it fails that",
+        "way, use opencode-openrouter instead — OpenCode speaks OpenRouter natively."
+      ],
+      "verified": false,
+      "invoke": {
+        "model": "qwen/qwen3-coder",
+        "sandbox": "workspace-write",
+        "approve_for_me": true,
+        "oss": false,
+        "local_provider": null,
+        "config_overrides": ["model_provider=\"openrouter\""]
+      },
+      "env_file": ".env",
+      "env_required": ["OPENROUTER_API_KEY"],
+      "capabilities": {
+        "edits_files": true,
+        "runs_commands": true,
+        "sessions": true,
+        "sandboxed": true,
+        "network": false,
+        "context_tokens": 128000
+      },
+      "limits": {
+        "spec_review_rounds": 3,
+        "fix_rounds": 3,
+        "call_timeout_ms": 900000,
+        "max_prompt_chars": 120000
+      },
+      "preflight": {
+        "check": "test -n \"$OPENROUTER_API_KEY\" && curl -sf -H \"Authorization: Bearer $OPENROUTER_API_KEY\" https://openrouter.ai/api/v1/models >/dev/null",
+        "hint": "put OPENROUTER_API_KEY in .env and source it; add [model_providers.openrouter] to ~/.codex/config.toml per the codex adapter doc section 8"
+      },
+      "fallback": null
+    },
+
+    "opencode-lmstudio": {
+      "adapter": "opencode",
+      "label": "Local model via LM Studio, driven by OpenCode",
+      "_doc": "A second agent loop over the same local model. Run it against codex-lmstudio to separate what the MODEL cannot do from what the HARNESS-to-tool plumbing cannot do — the single most useful comparison on this list. Note capabilities.sandboxed: OpenCode has no workspace jail.",
+      "verified": false,
+      "invoke": {
+        "model": "lmstudio/qwen/qwen3-coder-30b",
+        "config_file": ".claude/adapters/opencode/lmstudio.json",
+        "auto": true,
+        "agent": null,
+        "extra_args": []
+      },
+      "env_file": null,
+      "env_required": [],
+      "capabilities": {
+        "edits_files": true,
+        "runs_commands": true,
+        "sessions": true,
+        "sandboxed": false,
+        "network": true,
+        "context_tokens": 32768
+      },
+      "limits": {
+        "spec_review_rounds": 2,
+        "fix_rounds": 2,
+        "call_timeout_ms": 2400000,
+        "max_prompt_chars": 40000
+      },
+      "preflight": {
+        "check": "opencode --version && curl -sf http://127.0.0.1:1234/v1/models",
+        "hint": "install OpenCode (https://opencode.ai), then lms server start && lms load <model-id>"
+      },
+      "fallback": null
+    },
+
+    "opencode-ollama": {
+      "adapter": "opencode",
+      "label": "Local model via Ollama, driven by OpenCode",
+      "_doc": "As opencode-lmstudio, against Ollama. The model id after the provider prefix must match `ollama list`.",
+      "verified": false,
+      "invoke": {
+        "model": "ollama/qwen3-coder:30b",
+        "config_file": ".claude/adapters/opencode/ollama.json",
+        "auto": true,
+        "agent": null,
+        "extra_args": []
+      },
+      "env_file": null,
+      "env_required": [],
+      "capabilities": {
+        "edits_files": true,
+        "runs_commands": true,
+        "sessions": true,
+        "sandboxed": false,
+        "network": true,
+        "context_tokens": 32768
+      },
+      "limits": {
+        "spec_review_rounds": 2,
+        "fix_rounds": 2,
+        "call_timeout_ms": 2400000,
+        "max_prompt_chars": 40000
+      },
+      "preflight": {
+        "check": "opencode --version && curl -sf http://127.0.0.1:11434/v1/models",
+        "hint": "install OpenCode (https://opencode.ai), then ollama serve && ollama pull <model>"
+      },
+      "fallback": null
+    },
+
+    "opencode-openrouter": {
+      "adapter": "opencode",
+      "label": "OpenRouter model, driven by OpenCode",
+      "_doc": "The supported OpenRouter path: OpenCode has a first-class openrouter provider, so the key is all it needs. Useful for renting a frontier model for one night, or for pitting several models against the same backlog without installing anything. Change invoke.model to any OpenRouter model id.",
+      "verified": false,
+      "invoke": {
+        "model": "openrouter/qwen/qwen3-coder",
+        "config_file": ".claude/adapters/opencode/openrouter.json",
+        "auto": true,
+        "agent": null,
+        "extra_args": []
+      },
+      "env_file": ".env",
+      "env_required": ["OPENROUTER_API_KEY"],
+      "capabilities": {
+        "edits_files": true,
+        "runs_commands": true,
+        "sessions": true,
+        "sandboxed": false,
+        "network": true,
+        "context_tokens": 128000
+      },
+      "limits": {
+        "spec_review_rounds": 3,
+        "fix_rounds": 3,
+        "call_timeout_ms": 900000,
+        "max_prompt_chars": 120000
+      },
+      "preflight": {
+        "check": "opencode --version && test -n \"$OPENROUTER_API_KEY\" && curl -sf -H \"Authorization: Bearer $OPENROUTER_API_KEY\" https://openrouter.ai/api/v1/models >/dev/null",
+        "hint": "install OpenCode (https://opencode.ai) and put OPENROUTER_API_KEY in .env"
       },
       "fallback": null
     }

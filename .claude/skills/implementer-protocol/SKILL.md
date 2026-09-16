@@ -77,13 +77,21 @@ Related repo (do not edit): <OTHER_REPO_PATH> — <how they talk: REST/GraphQL/�
 <the matching verdict block — see below>
 ```
 
-When the profile's `capabilities.network` is false, every IMPLEMENT prompt also carries:
+**Containment — in every prompt, always, whatever the profile:**
+
+> Work only inside this repository. Do not read, copy from, or write to any directory outside it.
+
+Never drop this paragraph. When `capabilities.sandboxed` is true it prevents a mistake; when it is
+false it is the *only* control there is, because nothing in the tool stops the model from wandering,
+and `/df-build`'s diff review is the last line of defence. On a cross-repo project, check the other
+repo's `git status` before committing too.
+
+**When `capabilities.network` is false**, every IMPLEMENT prompt also carries:
 
 > Your sandbox has no network. If a dependency is missing, stop and report `PARTIAL` saying which
 > one. **Never** satisfy an import by pointing `PYTHONPATH`, `NODE_PATH` or any other loader at
 > packages outside this repository — another project's virtualenv or `node_modules` on this machine
-> is not this project's environment, and a suite that passes against it proves nothing about this
-> one. Do not read, copy from, or write to any directory outside this repo.
+> is not this project's environment, and a suite that passes against it proves nothing about this one.
 
 Left unsaid, a blocked backend will find a sibling project's environment on disk and run the suite
 green against it. It usually reports this honestly in `NOTES`, which is the only reason it gets
@@ -92,7 +100,11 @@ Anything it reached outside the repo is an incident: scrub the other project's i
 log before committing, and never let it into `LESSONS.md` (invariant 9).
 
 Provision the environment yourself — venv, `npm install`, migrations — before the implement call,
-from the coordinator side where the network works, and say so in the prompt.
+from the coordinator side. Do it even when `network` is true: an implementer inventing its own
+dependency tree mid-WP is a diff problem, not a convenience.
+
+**Secrets never enter a prompt.** A profile's `env_file` is sourced into the call's environment by the
+adapter; the key itself does not appear in the prompt, the WP log, a commit or a report.
 
 ### REVIEW block (spec-review round)
 

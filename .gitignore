@@ -22,3 +22,6 @@ active-project/wps/*
 # /reactivate-project moves one back into active-project/.
 projects-archive/*
 !projects-archive/README.md
+
+# --- Secrets: keys for the configured backends. Template is .env.example, tracked. ---
+.env

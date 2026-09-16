@@ -15,6 +15,9 @@ Placeholders: `<REPO>` target repo path, `<H>` this harness dir (absolute), `<P>
 | `approve_for_me: true` | `--approve-for-me` |
 | `config_overrides: ["k=v", …]` | one `-c k=v` each |
 
+A profile with an `env_file` is called with it sourced first: `set -a; . "<H>/<env_file>"; set +a`.
+Local profiles (`oss: true`) need no key at all.
+
 ## 1. Preflight
 
 ```bash
@@ -98,3 +101,31 @@ implement call, and forbid the workaround explicitly in every IMPLEMENT prompt (
 | exit 0, `.out.md` empty or unchanged mtime | failed call with a stale file — see the trap in §3 |
 | local provider: `connection refused`, `Failed to connect`, empty model list | server not running or model not loaded → run `preflight.hint`, retry once, then §B |
 | stream stalls with no output past the timeout | kill it, treat as one failed round, resume the session with the same prompt once |
+
+## 8. Providers other than the hosted default
+
+**Local models — supported directly.** `--oss --local-provider lmstudio|ollama` is built in; set
+`oss: true` and `local_provider` on the profile and pass the served model id with `-m`. The id must
+match what the server actually serves (`lms ls`, `ollama list`) — a wrong id fails as a provider
+error, not as a bad answer, so it is a config bug and never worth a retry. Everything else is
+unchanged: same agent loop, same `workspace-write` sandbox, same sessions. That is what makes a
+local-vs-hosted comparison on this adapter a clean one-variable experiment.
+
+**OpenRouter — unverified, and here is the specific doubt.** It needs a custom provider in
+`~/.codex/config.toml`:
+
+```toml
+[model_providers.openrouter]
+name = "OpenRouter"
+base_url = "https://openrouter.ai/api/v1"
+env_key = "OPENROUTER_API_KEY"
+```
+
+then `-c model_provider="openrouter" -m <openrouter/model-id>`, with `OPENROUTER_API_KEY` sourced
+from `.env`. The catch: OpenAI's config reference documents `wire_api = "responses"` as the only
+supported protocol, and OpenRouter serves chat-completions. If the smoke call fails on the wire
+format, that is the reason, and it is not something the harness can work around — use the
+`opencode-openrouter` profile instead, where OpenRouter is a first-class provider.
+
+Verify before relying on either: the `model_providers` keys above are `name`, `base_url`, `env_key`,
+`wire_api`, `http_headers`, `query_params`, per learn.chatgpt.com/docs/config-file/config-reference.
