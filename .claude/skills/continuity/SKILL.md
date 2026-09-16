@@ -1,15 +1,15 @@
 ---
 name: continuity
-description: Checkpoint and resume when Claude or Codex runs out of credit. Load on a usage-limit warning, a codex quota failure, /df-pause or /df-resume.
+description: Checkpoint and resume when the coordinator or the backend runs out of credit. Load on a usage-limit warning, a backend quota failure, /df-pause or /df-resume.
 ---
 
 # Continuity protocol
 
-Two independent failure modes. They can happen at the same time; handle Claude's first.
+Two independent failure modes. They can happen at the same time; handle the coordinator's first.
 
 ---
 
-# A. Claude approaching its credit limit
+# A. The coordinator approaching its credit limit
 
 ## Detection — what actually exists
 
@@ -25,10 +25,10 @@ Independently: **checkpoint after every WP regardless**. `active-project/RESUME.
 
 ## On trigger — do this in order, and keep it short
 
-You may have very little budget left. Do not start new work, do not run Codex, do not "just finish this one verification".
+You may have very little budget left. Do not start new work, do not call the backend, do not "just finish this one verification".
 
 1. **Stop at the nearest safe boundary.** Safe = the repos are in a consistent state.
-   - Codex is mid-implementation → let a call that is already in flight finish, then stop. Never abandon a half-written call you cannot verify.
+   - The backend is mid-implementation → let a call that is already in flight finish, then stop. Never abandon a half-written call you cannot verify.
    - You already verified and passed → **commit first**, then checkpoint. Uncommitted verified work is the one thing you cannot reconstruct.
    - Verification failed mid-way → do not commit; record the failure in the checkpoint and leave the tree dirty, noting exactly which files.
 2. **Write `active-project/RESUME.md`** (format below). This is the only artifact guaranteed to survive.
@@ -41,7 +41,7 @@ Overwrite it every time; it is a snapshot, not a log.
 
 ```markdown
 # RESUME — written <ISO timestamp>
-Reason: credit-pause | codex-down | manual
+Reason: credit-pause | backend-down | manual
 Resume at: <ISO timestamp or "any time">
 
 ## Where we are
@@ -52,8 +52,9 @@ Backlog: <n>/<total> DONE. In flight: <WP-XXX, state> | none
 | repo | branch | HEAD sha | clean? | if dirty: which files and why |
 
 ## Mid-flight detail  (omit if nothing is in flight)
-- Codex session id: <uuid>
-- Last Codex verdict: <READY|DONE|PARTIAL|BLOCKED> from <round n>
+- Backend profile: <profile-id> (reviewer / implementer)
+- Session id: <uuid>
+- Last verdict: <READY|DONE|PARTIAL|BLOCKED> from <round n>
 - Last thing I did: <one line>
 - Last command I ran and its result: <one line>
 - What was about to happen next: <one line>
@@ -92,32 +93,38 @@ Never claim the resume is guaranteed. Never register an OS-level scheduled task 
 
 ---
 
-# B. Codex out of tokens
+# B. The backend is unavailable
+
+Quota, a dead endpoint, an unloaded model — same protocol. The active adapter doc's §7 has its exact signatures.
 
 ## Detection
 
-A `codex exec` call fails, or its output contains a quota signal. Match case-insensitively on stderr, exit code, and `.out.md`:
+A backend call fails, or its output carries a quota signal. Match case-insensitively on stderr, exit code, and the out file:
 
 `usage limit` · `rate limit` · `quota` · `429` · `too many requests` · `insufficient` · `try again (after|in)` · `resets (at|in)`
 
-Distinguish it from a normal failure: a quota failure produces no code changes and usually fails within seconds. Confirm with **one** retry after ~60s. If it fails the same way, declare Codex down; log it in `active-project/RESUME.md` (`Reason: codex-down`) and in the WP log with the exact message and any reset time you can parse.
+Local and self-hosted endpoints fail differently — match these too:
 
-If the failure lands **mid-implementation** (files already changed), first run `git -C <repo> status --short` and `git -C <repo> diff` and record what exists. Do not commit a half-finished WP. Note in the WP log which files are partial, so the resumed Codex session knows what it left behind.
+`connection refused` · `failed to connect` · `no such model` · `model not found` · `model not loaded` · an empty `/v1/models` list · a socket timeout before the first token
 
-## While Codex is down — the takeover ladder
+Distinguish either from a normal bad answer: an unavailable backend produces no code changes and usually fails within seconds. Confirm with **one** retry after ~60s — for a local endpoint, run the profile's `preflight.hint` first, since starting the server or loading the model may be all it needs. If it fails the same way and the profile has a `fallback`, switch to it on a fresh session and log the switch. No fallback → declare the backend down; log it in `active-project/RESUME.md` (`Reason: backend-down`) and in the WP log with the exact message and any reset time you can parse.
+
+If the failure lands **mid-implementation** (files already changed), first run `git -C <repo> status --short` and `git -C <repo> diff` and record what exists. Do not commit a half-finished WP. Note in the WP log which files are partial, so the resumed session — or the fallback profile, which has no memory of it — knows what it left behind.
+
+## While the backend is down — the takeover ladder
 
 Work down it, top first. Never skip ahead to code because the queue is boring.
 
-1. **Spec ahead.** Write `active-project/wps/WP-XXX.md` for every remaining WP whose dependencies are DONE or will be. Mark each `State: SPECCED-UNREVIEWED` and add `Pending: Codex spec review` to its backlog row. **These are drafts, not frozen specs** — the review gate is owed and unpaid, so nothing gets implemented from them while Codex is down except what clears the trivial gate below. Review your own drafts against the code as hard as you can in the meantime; it is not a substitute, it is what you have.
+1. **Spec ahead.** Write `active-project/wps/WP-XXX.md` for every remaining WP whose dependencies are DONE or will be. Mark each `State: SPECCED-UNREVIEWED` and add `Pending: spec review` to its backlog row. **These are drafts, not frozen specs** — the review gate is owed and unpaid, so nothing gets implemented from them while the backend is down except what clears the trivial gate below. Review your own drafts against the code as hard as you can in the meantime; it is not a substitute, it is what you have.
 2. **Write the acceptance checks.** For each unreviewed spec, write your independent check into `active-project/checks/WP-XXX.*`. Outside the repos, always.
 3. **Implement trivial WPs only.** See the gate below.
 4. **Nothing left → stop.** Write RESUME.md, schedule a retry, report. Do not invent work to look busy.
 
 ## The trivial-WP gate
 
-You may write code when you judge it necessary, but delegation is the default for a reason: Codex reviews the repo with fresh eyes, and code you both wrote and reviewed has had one pair of eyes, not two. With Codex down you lose that second pair — so what you take on alone stays small and obvious.
+You may write code when you judge it necessary, but delegation is the default for a reason: the backend reads the repo with fresh eyes, and code you both wrote and reviewed has had one pair of eyes, not two. With it down you lose that second pair — so what you take on alone stays small and obvious.
 
-Implement a WP yourself while Codex is out only if it passes **every** test:
+Implement a WP yourself while the backend is out only if it passes **every** test:
 
 - touches <= 3 files
 - adds no dependency
@@ -139,24 +146,24 @@ WP-XXX: <title>
 <what and why>
 Spec: active-project/wps/WP-XXX.md
 Tests: <command> -> <result>
-Implemented-by: Claude (Codex unavailable — pending Codex review)
+Implemented-by: coordinator (backend unavailable — pending review)
 ```
 
-Backlog state becomes `DONE*` (the star means Claude-built). Add it to the review queue in RESUME.md.
+Backlog state becomes `DONE*` (the star means coordinator-built). Add it to the review queue in RESUME.md.
 
-## When Codex returns
+## When the backend returns
 
 Before starting any new WP, drain the debt in this order:
 
-1. Resume the interrupted WP's Codex session with a FIX/continue prompt that inlines the current `git diff`, so it knows what it left half-done.
+1. Resume the interrupted WP's session with a FIX/continue prompt that inlines the current `git diff`, so it knows what it left half-done.
 2. Run the deferred spec-review round for every `SPECCED-UNREVIEWED` WP — one call per WP. Fold the issues in as usual, then mark them `SPECCED`.
-3. Have Codex review every `DONE*` commit (`git -C <repo> show <sha>`, "review this, do not rewrite it unless it is wrong"). Fix what it finds, then drop the star.
+3. Have the reviewer review every `DONE*` commit (`git -C <repo> show <sha>`, "review this, do not rewrite it unless it is wrong"). Fix what it finds, then drop the star.
 
 Only then continue the normal loop.
 
 ## Probing for recovery
 
-Do not poll in a tight loop — each probe costs your credits, not Codex's.
+Do not poll in a tight loop — each probe costs your credits, not the backend's.
 
 - If you parsed a reset time: wait for it, then probe once.
 - Otherwise: probe at +60 min, then hourly, max 5 probes, then stop and tell the user.

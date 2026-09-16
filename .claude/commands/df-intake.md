@@ -111,7 +111,7 @@ Status: ACTIONABLE | OPEN ITEMS: <n>
 
 ## 1. Product summary  (what, for whom, why now)
 ## 2. Actors & permissions
-## 3. Domain model            (entities, fields, relations, states — this is what Codex builds against)
+## 3. Domain model            (entities, fields, relations, states — this is what gets built against)
 ## 4. User flows              (numbered, with unhappy paths)
 ## 5. Surfaces / screens
 ## 6. API surface             (operation list; detail lives in the WP specs)

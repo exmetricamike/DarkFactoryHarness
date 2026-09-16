@@ -27,7 +27,7 @@ When you hit something you would normally ask about, run this — it takes secon
 
 **Never** stop to ask about: naming, file layout, library choice among installed options, error message wording, validation strictness, pagination defaults, empty/loading/error state design, ordering of work, whether a WP is big enough to split, or how to word a commit.
 
-**Deciding alone does not mean deciding by yourself.** Codex is awake and it reads the repo. On a genuinely close design call inside a WP, put both options in the review round and ask which one fits the existing code better — one extra round, a much better answer. The user is asleep; your collaborator is not.
+**Deciding alone does not mean deciding by yourself.** Your reviewer is awake and it reads the repo. On a genuinely close design call inside a WP, put both options in the review round and ask which one fits the existing code better — one extra round, a much better answer. The user is asleep; your collaborator is not.
 
 ## 2. `active-project/DECISIONS.md` — append-only
 
@@ -46,7 +46,7 @@ Flag anything you are less than confident about with `⚠` in the `#` column. Th
 Every time the night costs you something, append **one line** to the `Candidates` section of
 `LESSONS.md` and keep moving. Triggers, no judgement required:
 
-- a spec that needed ≥3 Codex review rounds, or got descoped to get a READY
+- a spec that needed ≥3 review rounds, or got descoped to get a READY
 - a WP reverted, blocked, or split mid-flight
 - ≥2 fix rounds on the same defect
 - a decision you later had to reverse
@@ -66,7 +66,7 @@ project-specific, it dies there — that is the system working.
 2. **Irreducible product contradiction.** Two spec sections demand opposite behavior and picking either invents product intent that changes what the product *is* (not how it looks). Cosmetic or technical contradictions are not this — decide those.
 3. **Both agents out of credit.** Nothing left to run with.
 
-Everything else — a failing test, a confusing module, a missing endpoint, an unclear requirement, a Codex disagreement, a broken dev environment — is work, and work is what you are here for.
+Everything else — a failing test, a confusing module, a missing endpoint, an unclear requirement, a reviewer disagreement, a broken dev environment — is work, and work is what you are here for.
 
 **Stopping is per-WP, never per-project.** Mark that WP `BLOCKED`, write why, and immediately take the next WP whose dependencies are met. Only when *no* WP is runnable do you halt the loop — and then you still write the morning report.
 
@@ -77,8 +77,8 @@ When you do stop a WP for reason 1 or 2, fire a `PushNotification` (load it with
 | Situation | Do this, not that |
 |---|---|
 | Dependency WP blocked | Take the next independent WP. Re-plan the order in the backlog if several are stuck behind one. |
-| Codex disagrees with the spec 3 rounds in | Do not bulldoze it — its objections are usually about the code you cannot see. Cut the contested part into a follow-up WP and get a READY on the smaller spec. A reviewed thin slice tonight beats an unreviewed thick one. |
-| Codex flags a BLOCKER you think is wrong | Check the code. Wrong → answer with the file:line and let it re-judge. Right → fix the spec. Never proceed with the blocker standing. |
+| The reviewer disagrees with the spec 3 rounds in | Do not bulldoze it — its objections are usually about the code you cannot see. Cut the contested part into a follow-up WP and get a READY on the smaller spec. A reviewed thin slice tonight beats an unreviewed thick one. |
+| The reviewer flags a BLOCKER you think is wrong | Check the code. Wrong → answer with the file:line and let it re-judge. Right → fix the spec. Never proceed with the blocker standing. |
 | Verification fails 3 fix rounds | Revert the WP's commits if the tree is worse than before (`git -C <repo> revert` — never `reset --hard` on committed work), mark `BLOCKED`, move on. A clean tree at 4am is worth more than a half-working feature. |
 | Test suite is flaky | Re-run once. Still flaky → treat the flake as a finding, log it, judge the WP on the deterministic tests. Do not delete or skip tests to get green, and do not let a flake block a WP. |
 | Dev environment broken (port, missing service, bad env var) | Fix it — that is environment, not product code, and it is yours to fix. Log it. |
@@ -96,7 +96,7 @@ At the end of every WP that touches the frontend, and again after the final WP, 
 2. Wait for readiness by polling the port/health endpoint — never by sleeping a fixed time.
 3. **Backend**: `curl` the routes this WP added. Assert status, shape, and the failure paths (401/403/404/422), not just the happy 200.
 4. **Frontend**: drive the real UI with the `claude-in-chrome` tools — load the `claude-in-chrome` skill, open a fresh tab, walk the flow from §6 of the WP spec, read the console (`read_console_messages`) and network (`read_network_requests`) for errors the DOM does not show. A screenshot of a blank page with a red console is a failure, not a pass.
-5. **Judge it like a user, and fix what a user would notice**: unreadable contrast, unlabeled controls, a form with no error state, a list with no empty state, a button that does nothing, a layout broken at a normal window size. Send those back to Codex as a FIX round — they are defects, not polish.
+5. **Judge it like a user, and fix what a user would notice**: unreadable contrast, unlabeled controls, a form with no error state, a list with no empty state, a button that does nothing, a layout broken at a normal window size. Send those back to the implementer as a FIX round — they are defects, not polish.
 6. Record the evidence in the WP log: commands run, status codes, what you saw, console errors. "Verified" without evidence is not verified.
 7. Shut the processes down when you are done with them, so the next WP starts clean.
 
@@ -109,7 +109,7 @@ The product must be usable, not merely built.
 1. Clean-slate boot: from a fresh clone-equivalent state (fresh install, migrations, seed), start everything using only what `PROJECT.md` documents. If a step is missing from the docs, add it — undocumented setup is a broken product.
 2. Walk **every** flow in `SPEC.md` §4 end to end in the browser, as a real user would, including the unhappy paths.
 3. Check `SPEC.md` §11 acceptance criteria one by one: PASS/FAIL with evidence.
-4. Anything broken → one more Codex round if credits allow; otherwise record it precisely at the top of the morning report.
+4. Anything broken → one more implementer round if credits allow; otherwise record it precisely at the top of the morning report.
 5. Leave the repos committed and clean, and leave the app startable with a single documented command per repo.
 
 ## 7. The morning report — `active-project/MORNING.md`
@@ -127,6 +127,8 @@ Write it last, rewrite it fully each night. The user reads this before anything 
 
 ## Done tonight
 | WP | Title | Verified how | Commits |
+
+<one line under the table: which profiles played reviewer and implementer tonight, and any fallback or backend-down switch.>
 
 ## Not done
 | WP | State | Why | What it needs |
@@ -154,7 +156,7 @@ You are spending a finite budget while nobody watches. Do not waste it.
 
 - Do not re-read files you already read this session; do not re-verify a WP you already verified.
 - Do not re-litigate a decision already in `DECISIONS.md`.
-- Prefer one precise Codex round over three vague ones: a FIX prompt with exact failing output beats "it doesn't work".
+- Prefer one precise backend round over three vague ones: a FIX prompt with exact failing output beats "it doesn't work".
 - Do not burn rounds polishing a WP that already meets its acceptance criteria. Meets spec = done.
 - Keep your own reports to the compact block in `df-run.md`. Prose costs tokens that could have been a work package.
 - A candidate line is one line. Retrospection is a morning activity with the user present; at 3am it is procrastination with a budget.

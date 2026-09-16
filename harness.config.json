@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "_doc": "Which backend plays which role. Adapter mechanics: .claude/docs/adapters/<adapter>.md. Schema: .claude/docs/adapters/_contract.md.",
+
+  "roles": {
+    "reviewer": "codex-cloud",
+    "implementer": "codex-cloud"
+  },
+
+  "profiles": {
+    "codex-cloud": {
+      "adapter": "codex",
+      "label": "Codex CLI, hosted model, ChatGPT auth",
+      "invoke": {
+        "model": null,
+        "sandbox": "workspace-write",
+        "approve_for_me": true,
+        "config_overrides": []
+      },
+      "capabilities": {
+        "edits_files": true,
+        "runs_commands": true,
+        "sessions": true,
+        "network": false,
+        "context_tokens": 200000
+      },
+      "limits": {
+        "spec_review_rounds": 3,
+        "fix_rounds": 3,
+        "call_timeout_ms": 600000,
+        "max_prompt_chars": null
+      },
+      "preflight": {
+        "check": "codex --version",
+        "hint": "codex login  — then re-run the smoke call"
+      },
+      "fallback": null
+    }
+  }
+}

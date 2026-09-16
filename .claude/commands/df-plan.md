@@ -8,8 +8,8 @@ Preconditions: `active-project/SPEC.md` has zero OPEN items and `active-project/
 
 ## Sizing rule
 
-One WP = **one Codex session**: a vertical slice a competent implementer finishes in one sitting.
-Target ~5-15 files touched. If a WP needs more than ~15 files or two unrelated concerns, split it.
+One WP = **one implementer session**: a vertical slice a competent implementer finishes in one sitting.
+Target ~5-15 files touched, or ~3-8 for a profile with a small `capabilities.context_tokens`. If a WP needs more than ~15 files or two unrelated concerns, split it.
 If it touches fewer than 2 files, merge it into a neighbour — coordination overhead is not free.
 
 ## Decomposition heuristics (in order)
@@ -32,8 +32,8 @@ If it touches fewer than 2 files, merge it into a neighbour — coordination ove
 Updated: <date> | DONE <n>/<total>
 
 ## Order
-| ID | Title | Repos | Depends | State | Codex session | Notes |
-|----|-------|-------|---------|-------|---------------|-------|
+| ID | Title | Repos | Depends | State | Session | Notes |
+|----|-------|-------|---------|-------|---------|-------|
 | WP-001 | … | be | — | TODO | — | |
 
 State: TODO -> SPECCED -> BUILDING -> VERIFY -> DONE | BLOCKED

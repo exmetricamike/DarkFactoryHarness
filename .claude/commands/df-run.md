@@ -8,7 +8,7 @@ argument-hint: [optional: stop-after WP-XXX]
 **Load the `night-shift` skill now, before the first iteration.** It governs every decision you make from here.
 **Read `LESSONS.md` in the same breath.** Previous nights already paid for those answers; step 0 of every decision tonight is checking whether one applies.
 
-Preconditions: `active-project/BACKLOG.md` exists. That is all. Do **not** wait for plan approval — if the user launched this, the plan is approved.
+Preconditions: `active-project/BACKLOG.md` exists, and the roles in `harness.config.json` resolve and preflight (`/df-implementer --smoke`). That is all. Do **not** wait for plan approval — if the user launched this, the plan is approved.
 
 ## The contract you just accepted
 
@@ -42,9 +42,9 @@ Follow those command files literally. A long night is not a licence to run an ab
 Load the `continuity` skill on either signal.
 
 - **Your credits**: an approaching-limit warning appears → commit anything verified, write `active-project/RESUME.md`, schedule the one-shot cron **4 hours out** (no user input, no reset-time question — they are asleep), stop. The cron fires while the terminal sits idle overnight and the loop continues itself. Do not start another WP hoping it fits.
-- **Codex's credits**: a `codex exec` call fails on quota → one retry, then switch to the takeover ladder (spec ahead → write your checks → trivial WPs only) and **keep looping in that reduced mode**. Retry Codex at the parsed reset time, else hourly. Log the switch; do not silently change mode.
+- **The backend**: a call fails on quota or the endpoint is unreachable → one retry, then the profile's `fallback` if it has one, else switch to the takeover ladder (spec ahead → write your checks → trivial WPs only) and **keep looping in that reduced mode**. Retry the backend at the parsed reset time, else hourly. Log the switch; do not silently change mode.
 
-Never spend your own remaining budget implementing non-trivial WPs because Codex is down.
+Never spend your own remaining budget implementing non-trivial WPs because the backend is down.
 
 ## Halt the loop only when
 
@@ -52,7 +52,7 @@ Never spend your own remaining budget implementing non-trivial WPs because Codex
 - both agents are out of credit (checkpoint first — the cron restarts you)
 - the `stop-after` WP in `$ARGUMENTS` is `DONE`
 
-That is the whole list. A blocked WP, a failing test, a Codex disagreement, an unclear requirement, a broken dev environment, a spec that turned out wrong — none of these halt the loop. Mark, log, route around, continue. Even a security stop (skill §3) only blocks that one WP.
+That is the whole list. A blocked WP, a failing test, a reviewer disagreement, an unclear requirement, a broken dev environment, a spec that turned out wrong — none of these halt the loop. Mark, log, route around, continue. Even a security stop (skill §3) only blocks that one WP.
 
 Before halting on "nothing runnable", check twice: re-read the backlog dependencies, and ask whether a blocked WP can be split so its unblocked half ships tonight.
 
@@ -60,6 +60,7 @@ Before halting on "nothing runnable", check twice: re-read the backlog dependenc
 
 ```
 WP-XXX <title> — DONE | BLOCKED
+  backend: reviewer <profile-id> / implementer <profile-id>
   spec: <n> rounds, <n> accepted / <n> rejected
   build: <n> fix rounds | tests <cmd> -> <result>
   verified: <what you actually exercised — endpoints hit, UI flow driven, console clean>
