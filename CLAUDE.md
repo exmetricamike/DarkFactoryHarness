@@ -43,8 +43,9 @@ The same applies after implementation: the implementer reviews its own work when
 8. **Never fabricate backend output.** If a backend call fails or returns nothing, say so and stop.
 9. **`active-project/` is never committed.** It is per-project working state and git-ignored (only the scaffolding READMEs are tracked). When you commit in *this* repo, name the paths — never `git add -A`, never `-f` on `active-project/`.
 10. **During any run, only `active-project/` is read or considered.** `projects-archive/` holds closed-out projects and nothing else — never read from it, never write to it, except inside `/archive-project` and `/reactivate-project` themselves. Only one project is active at a time.
-11. When making technical decisions, do not give much weight to development cost. Instead, prefer quality, simplicity, robustness, scalability, and long term maintainability.
-12. **Resolve the backend from `harness.config.json` at the start of every phase command**, and record the profile id in the WP log and in every commit trailer. A WP never switches backend mid-flight except through that profile's configured `fallback`, which starts a fresh session and is logged.
+11. **Never write to a shared dev account.** Accounts the team also uses - today `support@justlawyers.app`, uid `RdUM48SO0mU20oSp2JudJDx99RZ2` - are read-only to the harness: no password change, no profile or Firestore write, no delete. A check that needs an account in some state creates its own. `active-project/checks/protected-accounts.js` lists them and the Admin SDK helpers refuse on them; add to that list rather than arguing the exception.
+12. When making technical decisions, do not give much weight to development cost. Instead, prefer quality, simplicity, robustness, scalability, and long term maintainability.
+13. **Resolve the backend from `harness.config.json` at the start of every phase command**, and record the profile id in the WP log and in every commit trailer. A WP never switches backend mid-flight except through that profile's configured `fallback`, which starts a fresh session and is logged.
  
 
 ## State machine (per WP, tracked in BACKLOG.md)
