@@ -1,6 +1,6 @@
 # Adapter: codex
 
-`verified-against: codex-cli 0.149.0` (flags checked against `codex exec --help` / `codex exec resume --help`).
+`verified-against: codex-cli 0.154.0` (flags checked against `codex exec --help` / `codex exec resume --help`).
 Different major/minor → re-check those two help outputs before trusting anything below, and update this line.
 
 Placeholders: `<REPO>` target repo path, `<H>` this harness dir (absolute), `<P>` the WP prompt file,
@@ -12,8 +12,18 @@ Placeholders: `<REPO>` target repo path, `<H>` this harness dir (absolute), `<P>
 | `oss: true` | `--oss` |
 | `local_provider` | `--local-provider lmstudio\|ollama` |
 | `sandbox` | `-s <mode>` |
-| `approve_for_me: true` | `--approve-for-me` |
+| `approve_for_me: true` | `--approve-for-me` — **mutually exclusive with `-s`**, see below |
 | `config_overrides: ["k=v", …]` | one `-c k=v` each |
+
+**`--approve-for-me` and `-s/--sandbox` cannot be passed together** (since 0.154.0; `error: the argument
+'--sandbox <SANDBOX_MODE>' cannot be used with '--approve-for-me'`, exit 2). `--approve-for-me` routes
+approvals through automatic review and selects `workspace-write` itself, so:
+
+- **review call** → `-s read-only`, no `--approve-for-me`. A reviewer must not be able to write.
+- **implement / fix call** → `--approve-for-me` alone, which gives the `workspace-write` the profile asks for.
+
+A profile with `sandbox: "workspace-write"` *and* `approve_for_me: true` is therefore not a contradiction —
+it says "write scope, approvals automatic", and the call drops `-s`.
 
 A profile with an `env_file` is called with it sourced first: `set -a; . "<H>/<env_file>"; set +a`.
 Local profiles (`oss: true`) need no key at all.
@@ -22,7 +32,7 @@ Local profiles (`oss: true`) need no key at all.
 
 ```bash
 codex --version
-codex exec --cd "<REPO>" <FLAGS> -s read-only -o /tmp/smoke.out.md \
+codex exec --cd "<REPO>" <FLAGS-without--s-and---approve-for-me> -s read-only -o /tmp/smoke.out.md \
   "Reply with exactly one line naming this repo's primary language. Do not modify any files."
 ```
 
@@ -84,6 +94,9 @@ round's issue list or failure output, and the current `git -C <REPO> diff`.
 `-s workspace-write` confines writes to the repo passed with `--cd`, plus any `--add-dir`.
 One repo per call. A WP touching both repos = two calls (backend first unless the spec says
 otherwise), or one call with `--add-dir <OTHER_REPO>` when the change must be atomic across both.
+A **review** call takes `--add-dir` for every repo the spec makes a claim about, with `-s read-only`
+so the extra directories stay readable and unwritable — that is how the reviewer verifies the other
+side of a contract instead of taking the spec's word for it (L-015).
 `--skip-git-repo-check` only if the target is not a git repo — it should be; fix that instead.
 
 **No network in the sandbox.** Package installs fail. Provision the environment yourself before the
