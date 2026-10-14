@@ -1,6 +1,6 @@
 # Adapter: codex
 
-`verified-against: codex-cli 0.154.0` (flags checked against `codex exec --help` / `codex exec resume --help`).
+`verified-against: codex-cli 0.156.1` (flags checked against `codex exec --help` / `codex exec resume --help`).
 Different major/minor → re-check those two help outputs before trusting anything below, and update this line.
 
 Placeholders: `<REPO>` target repo path, `<H>` this harness dir (absolute), `<P>` the WP prompt file,
