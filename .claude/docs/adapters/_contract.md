@@ -21,6 +21,7 @@ profile, that is one doc, one session, and the run behaves exactly as a single-b
 | `profiles.<id>.adapter` | which adapter doc governs the mechanics |
 | `profiles.<id>.label` | human line for reports and the morning report |
 | `profiles.<id>.invoke` | adapter-specific launch parameters (model, provider, sandbox, flags) |
+| `profiles.<id>.invoke.model_tiers` | optional `{light, standard, heavy, last_resort}` → `{model, effort}` (`last_resort` is escalation-only); the coordinator picks the cheapest fitting tier per WP (implementer-protocol step 0b); only listed models are ever called |
 | `profiles.<id>.verified` | has it passed `/df-implementer --smoke` on this machine? |
 | `profiles.<id>.env_file` | dotenv file to source before the call, or `null` |
 | `profiles.<id>.env_required` | env vars that must be non-empty after sourcing it |

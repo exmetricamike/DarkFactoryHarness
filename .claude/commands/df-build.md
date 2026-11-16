@@ -49,7 +49,8 @@ git -C <repo> add -A && git -C <repo> commit -m "WP-XXX: <title>
 <1-3 lines: what changed and why>
 Spec: active-project/wps/WP-XXX.md
 Tests: <command> -> <result>
-Implemented-by: <profile-id>"
+Implemented-by: <profile-id>
+Model: <model>/<effort> (tier <tier>; omit the line when the profile has no model_tiers)"
 ```
 
 Never `git push` unless the user asks. Cross-repo: commit backend then frontend, same WP id in both subjects.

@@ -24,6 +24,32 @@ adapter doc; round limits, timeouts and the prompt budget come from the profile'
 - A WP never changes profile mid-flight. The only exception is the configured `fallback`, which
   starts a fresh session and is recorded in the WP log and the commit trailer.
 
+## Step 0b — pick the cheapest model tier that can do the job
+
+When the profile's `invoke.model_tiers` is set, every call runs on a tier you choose; `invoke.model` is ignored.
+Cost is the objective: the cheapest tier that will succeed in one round.
+Never pass a model that is not listed in `model_tiers` — frontier models are deliberately absent, and adding one is the user's call, never yours.
+A profile without `model_tiers` runs on `invoke.model` as before.
+
+Estimate the WP's difficulty once, before its first backend call, in under a minute, from the spec you already have:
+
+| Tier | Pick it when | Typical |
+|---|---|---|
+| `light` | Mechanical and pinpointed: ≤3 files, one repo, no schema/migration, no concurrency, no auth/permission/money/PII path, the change is obvious from the spec alone | copy and i18n strings, config, a single pure helper plus its test, a FIX round whose failure output names the exact line |
+| `standard` | A normal feature slice: new models, endpoints or a screen, several files, one or two repos, ordinary error paths | most WPs and most spec reviews |
+| `heavy` | Correctness is subtle or expensive to get wrong: transactions, locking, exactly/at-most-once delivery, concurrency, auth or security boundaries, migrations over real data, cross-cutting refactors | a send queue, a permission model, a data migration |
+| `last_resort` | **Never chosen up front.** Only as the escalation from `heavy`, after a `heavy` round failed on model capability | — |
+
+Rules:
+- **Default `standard`** when the rubric is split; go `light` only when every `light` condition holds, `heavy` only when one `heavy` trigger is central to the WP rather than incidental.
+- **One tier per WP for review and implementation.** A spec review of a `heavy` WP runs on `heavy`, because the reviewer's job is to find the subtle defect.
+- **FIX rounds** may drop to `light` when the failure output pinpoints the change, and should stay on the WP's tier otherwise.
+- **Escalate one tier** after a round fails for a reason that reads as model capability (misread spec, wrong design, broken code it could not see), not environment or a spec defect. Never escalate twice in one WP; `heavy` → `last_resort` is the only escalation that reaches it, and it is logged with the failure that justified it; after that, the normal fix-round limit and `fallback` rules apply.
+- **Never downgrade a resumed session mid-implementation** to save cost; the switch costs a re-read of the repo.
+
+Record the choice in the WP log as `Tier: <tier> (<model>/<effort>) — <one-line reason>` and in the commit trailer (`Model: <model>`), plus every escalation with its reason.
+The adapter doc says how a tier becomes flags.
+
 ## Golden rules
 
 1. **Self-contained prompts.** The backend starts cold and its sandbox root is the *repo*, not this

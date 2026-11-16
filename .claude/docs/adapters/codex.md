@@ -1,6 +1,6 @@
 # Adapter: codex
 
-`verified-against: codex-cli 0.156.1` (flags checked against `codex exec --help` / `codex exec resume --help`).
+`verified-against: codex-cli 0.169.0` (flags checked against `codex exec --help` / `codex exec resume --help`).
 Different major/minor → re-check those two help outputs before trusting anything below, and update this line.
 
 Placeholders: `<REPO>` target repo path, `<H>` this harness dir (absolute), `<P>` the WP prompt file,
@@ -8,7 +8,8 @@ Placeholders: `<REPO>` target repo path, `<H>` this harness dir (absolute), `<P>
 
 | `invoke` key | Flag |
 |---|---|
-| `model` | `-m <model>` (omit when `null`) |
+| `model` | `-m <model>` (omit when `null`; ignored when `model_tiers` is set) |
+| `model_tiers.<tier>` (chosen per WP, implementer-protocol step 0b) | `-m <tier.model> -c model_reasoning_effort="<tier.effort>"` |
 | `oss: true` | `--oss` |
 | `local_provider` | `--local-provider lmstudio\|ollama` |
 | `sandbox` | `-s <mode>` |
@@ -67,6 +68,8 @@ cd "<REPO>" && codex exec resume "<SESSION_ID>" \
 
 Sandbox, model and provider carry over from the session. Override with `-c`, e.g.
 `-c sandbox_mode="workspace-write"` when the first call was `-s read-only`.
+`resume` accepts `-m` and `-c model_reasoning_effort=...`, so a tier escalation keeps the session: pass both on the resume call.
+With `model_tiers` set, pass them on **every** call, resume included — the user's `~/.codex/config.toml` default model must never decide the cost.
 
 > **The stale-reply trap.** `-o` is only written when the call succeeds. A failed resume leaves the
 > *previous* round's `.out.md` in place, and reading it looks exactly like the backend repeating

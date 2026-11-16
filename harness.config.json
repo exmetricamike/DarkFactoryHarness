@@ -19,6 +19,7 @@
     "profiles.<id>.label": "Human line, shown in reports and the morning report.",
     "profiles.<id>.verified": "Has this profile passed /df-implementer --smoke on THIS machine? A profile that has never passed one is not usable in an unattended run. Set it true only after a smoke test actually returned a reply.",
     "profiles.<id>.invoke": "Adapter-specific launch parameters. See the adapter doc for how each key becomes a flag.",
+    "profiles.<id>.invoke.model_tiers": "Optional {light|standard|heavy|last_resort: {model, effort}}; last_resort is escalation-only. When set, the coordinator picks the cheapest tier that fits each WP (implementer-protocol step 0b) and invoke.model is ignored. Only listed models may ever be called.",
     "profiles.<id>.env_file": "Path to a dotenv file to source before the call, or null. Secrets live there, never in this file.",
     "profiles.<id>.env_required": "Env vars that must be non-empty after sourcing env_file. Missing one = preflight failure, not a mysterious 401 at 3am.",
     "profiles.<id>.capabilities": "What the backend can actually do. The protocol branches on these — an honest 'false' here is worth more than an optimistic 'true'.",
@@ -55,10 +56,22 @@
     "codex-cloud": {
       "adapter": "codex",
       "label": "Codex CLI, hosted model, ChatGPT auth",
-      "_doc": "The default and the only profile proven on this machine. Use it as the control when measuring anything else.",
+      "_doc": [
+        "The default and the only profile proven on this machine. Use it as the control when measuring anything else.",
+        "model_tiers: the coordinator picks the cheapest tier per WP (implementer-protocol step 0b).",
+        "Per 1M tokens in/out: luna $0.10/$0.50, terra $1/$5, sol $2/$10. gpt-6-astra ($10/$50) is a frontier model",
+        "and is deliberately NOT a tier: the user forbids calling Codex with it, ever. Adding one is the user's call.",
+        "'last_resort' (sol) is never picked up front: only as an escalation after 'heavy' failed a round on capability (user, 2026-11-16)."
+      ],
       "verified": true,
       "invoke": {
         "model": null,
+        "model_tiers": {
+          "light":    { "model": "gpt-6-luna",    "effort": "medium" },
+          "standard": { "model": "gpt-6.1-terra", "effort": "medium" },
+          "heavy":    { "model": "gpt-6.1-terra", "effort": "high" },
+          "last_resort": { "model": "gpt-6.1-sol", "effort": "high" }
+        },
         "sandbox": "workspace-write",
         "approve_for_me": true,
         "oss": false,
